@@ -23,5 +23,15 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+        // Seed countries
+        $this->call(CountrySeeder::class);
+        // Seed patient categories
+        $this->call(PatientCategorySeeder::class);
+        // Seed addresses
+        $this->call(AddressSeeder::class);
+        // Seed patients
+        $this->call(PatientSeeder::class);
+        
     }
 }

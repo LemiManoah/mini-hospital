@@ -14,6 +14,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    Route::resource('patients', \App\Http\Controllers\PatientController::class);
+    Route::resource('patient-categories', \App\Http\Controllers\PatientCategoryController::class);
+    Route::resource('addresses', \App\Http\Controllers\AddressController::class);
 });
 
 require __DIR__.'/settings.php';
