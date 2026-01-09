@@ -3,62 +3,66 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use Illuminate\Http\Request;
 use App\Services\AddressService;
 use App\Http\Requests\AddressRequest;
+use Illuminate\Http\RedirectResponse;
 
 class AddressController extends Controller
 {
-    protected AddressService $addressService;
-
-    public function __construct(AddressService $addressService)
-    {
-        $this->addressService = $addressService;
-    }
+    public function __construct(
+        protected AddressService $addressService
+    ) {}
 
     public function index()
     {
         $addresses = $this->addressService->getAllAddresses();
-        // dd($addresses);
+
         return Inertia::render('Address/Index', [
             'addresses' => $addresses,
         ]);
     }
 
-    public function show($id)
+    public function create()
+    {
+        return Inertia::render('Address/Create');
+    }
+
+    public function store(AddressRequest $request): RedirectResponse
+    {
+        $this->addressService->createAddress($request->validated());
+
+        return redirect()
+            ->route('addresses.index')
+            ->with('success', 'Address created successfully');
+    }
+
+    public function edit(string $id)
     {
         $address = $this->addressService->getAddressById($id);
-        if ($address) {
-            return Inertia::render('Addresses/Show', [
-                'address' => $address,
-            ]);
-        }
-        return response()->json(['message' => 'Address not found'], 404);
+
+        return Inertia::render('Address/Edit', [
+            'address' => $address,
+        ]);
     }
 
-    public function store(AddressRequest $request)
+    public function update(AddressRequest $request, string $id): RedirectResponse
     {
-        $data = $request->all();
-        $address = $this->addressService->createAddress($data);
-        return response()->json($address, 201);
+        $this->addressService->updateAddress($id, $request->validated());
+
+        return back()->with('success', 'Address updated successfully');
     }
 
-    public function update(Request $request, $id)
+    public function destroy(string $id): RedirectResponse
     {
-        $data = $request->all();
-        $address = $this->addressService->updateAddress($id, $data);
-        if ($address) {
-            return response()->json($address);
-        }
-        return response()->json(['message' => 'Address not found'], 404);
+        $this->addressService->deleteAddress($id);
+
+        return back()->with('success', 'Address deleted successfully');
     }
 
-    public function destroy($id)
+    public function restore(string $id): RedirectResponse
     {
-        $deleted = $this->addressService->deleteAddress($id);
-        if ($deleted) {
-            return response()->json(['message' => 'Address deleted successfully']);
-        }
-        return response()->json(['message' => 'Address not found'], 404);
+        $this->addressService->restoreAddress($id);
+
+        return back()->with('success', 'Address restored successfully');
     }
 }

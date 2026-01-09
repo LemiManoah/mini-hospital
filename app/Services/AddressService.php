@@ -5,6 +5,11 @@ use App\Models\Address;
 
 class AddressService
 {
+    public function searchAddresses($query)
+    {
+        return Address::where('district', 'like', "%$query%")
+            ->orWhere('county', 'like', "%$query%");
+    }
     public function getAllAddresses()
     {
         return Address::paginate(10);
@@ -15,30 +20,30 @@ class AddressService
         return Address::find($id);
     }
 
-    public function createAddress(array $data)
+    public function createAddress(array $data): Address
     {
         return Address::create($data);
     }
 
-    public function updateAddress($id, array $data)
+    public function updateAddress(string $id, array $data): Address
     {
-        $address = Address::find($id);
-        if ($address) {
-            $address->update($data);
-            return $address;
-        }
-        return null;
+        $address = Address::findOrFail($id);
+        $address->update($data);
+        return $address;
     }
 
-    public function deleteAddress($id)
+    public function deleteAddress(string $id): void
     {
-        $address = Address::find($id);
-        if ($address) {
-            $address->delete();
-            return true;
-        }
-        return false;
+        Address::findOrFail($id)->delete();
     }
 
-    
+    public function restoreAddress(string $id): void
+    {
+        Address::withTrashed()->findOrFail($id)->restore();
+    }
+
+    public function getTrashedAddresses()
+    {
+        return Address::onlyTrashed()->get();
+    }
 }

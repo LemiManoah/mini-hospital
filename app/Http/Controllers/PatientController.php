@@ -2,9 +2,117 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Services\PatientService;
+use App\Http\Requests\PatientRequest;
+use App\Enums\EnumsKinRelationship;
+use App\Enums\EnumsGender;
+use App\Enums\EnumsMaritalStatus;
+use App\Enums\EnumsReligions;
+use App\Models\PatientCategory;
+use App\Models\Address;
+use App\Models\Country;
 
 class PatientController extends Controller
 {
-    //
+    public function __construct(
+        protected PatientService $patientService,
+    ) {}
+
+    public function index(Request $request)
+    {
+        $search = $request->get('search');
+
+        if (!empty($search)) {
+            $patients = $this->patientService->searchPatients($search);
+        } else {
+            $patients = $this->patientService->getAllPatients();
+        }
+
+        return Inertia::render('Patients/Index', [
+            'patients' => $patients,
+            'filters' => [
+                'search' => $search,
+            ],
+            'kinRelationships' => EnumsKinRelationship::options(),
+            'genders' => EnumsGender::options(),
+            'maritalStatuses' => EnumsMaritalStatus::options(),
+            'religions' => EnumsReligions::options(),
+        ]);
+    }
+
+    public function create()
+    {
+        $countries = Country::all();
+        $patientCategories = PatientCategory::all();
+        $addresses = Address::all();
+        return Inertia::render('Patients/Create', [
+            'patientNumber' => $this->patientService->generatePatientNumber(),
+            'patientCategories' => $patientCategories,
+            'addresses' => $addresses,
+            'countries' => $countries,
+            'registrationDate' => now()->format('Y-m-d'),
+            'kinRelationships' => EnumsKinRelationship::options(),
+            'genders' => EnumsGender::options(),
+            'maritalStatuses' => EnumsMaritalStatus::options(),
+            'religions' => EnumsReligions::options(),
+        ]);
+    }
+
+    public function store(PatientRequest $request)
+    {
+        $this->patientService->createPatient($request->validated());
+
+        return redirect()
+            ->route('patients.index')
+            ->with('success', 'Patient created successfully');
+    }
+
+    public function show(string $id)
+    {
+        $patient = $this->patientService->getPatientById($id);
+        
+        return Inertia::render('Patients/Show', [
+            'patient' => $patient,
+            'kinRelationships' => EnumsKinRelationship::options(),
+            'genders' => EnumsGender::options(),
+            'maritalStatuses' => EnumsMaritalStatus::options(),
+            'religions' => EnumsReligions::options(),
+        ]);
+    }
+
+    public function edit(string $id)
+    {
+        $patient = $this->patientService->getPatientById($id);
+        
+        return Inertia::render('Patients/Edit', [
+            'patient' => $patient,
+            'kinRelationships' => EnumsKinRelationship::options(),
+            'genders' => EnumsGender::options(),
+            'maritalStatuses' => EnumsMaritalStatus::options(),
+            'religions' => EnumsReligions::options(),
+        ]);
+    }
+
+    public function update(PatientRequest $request, string $id)
+    {
+        $this->patientService->updatePatient($id, $request->validated());
+
+        return back()->with('success', 'Patient updated successfully');
+    }
+
+    public function destroy(string $id)
+    {
+        $this->patientService->deletePatient($id);
+
+        return back()->with('success', 'Patient deleted successfully');
+    }
+
+    public function restore(string $id)
+    {
+        $this->patientService->restorePatient($id);
+
+        return back()->with('success', 'Patient restored successfully');
+    }
 }

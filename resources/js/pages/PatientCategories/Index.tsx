@@ -1,7 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Link, router } from '@inertiajs/react';
-import { useCallback } from 'react';
 import {
     Pagination,
     PaginationContent,
@@ -20,44 +18,42 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Address, Paginated } from '@/types/address';
+import { PatientCategory } from '@/types/patientcategories';
+import { Paginated } from '@/types';
 import { Head } from '@inertiajs/react';
-import { create, edit, destroy} from '@/routes/addresses';
+import { Link, router } from '@inertiajs/react';
+import { create, edit, destroy} from '@/routes/patient-categories';
+import { useCallback } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-    {
-        title: 'Addresses',
-        href: '/addresses',
+        title: 'Patient Categories',
+        href: dashboard().url,
     },
 ];
 
-
-export default function AddressIndex({
-    addresses,
+export default function Index({
+    patientCategories,
 }: {
-    addresses: Address[] | Paginated<Address>;
+    patientCategories: PatientCategory[] | Paginated<PatientCategory>;
 }) {
     const handleDelete = useCallback((id: number) => {
-        if (confirm('Are you sure you want to delete this address?')) {
+        if (confirm('Are you sure you want to delete this patient category?')) {
             router.delete(destroy(id).url);
         }
     }, []);
-    
-    const rows: Address[] = Array.isArray(addresses)
-        ? addresses
-        : (addresses.data ?? []);
+    const rows: PatientCategory[] = Array.isArray(patientCategories)
+        ? patientCategories
+        : (patientCategories.data ?? []);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Addresses" />
+            <Head title="Patient Categories" />
             <div className="mt-4 mb-4 flex items-center justify-between gap-2 px-4">
-                <Input placeholder="search addresses" />
-                <Link href={create().url} className="btn">
-                    <Button>+ Add Address</Button>
+                <Input placeholder="search patient categories" />
+                <Link href={create().url }>
+                    <Button>+ Add Patient Category</Button>
                 </Link>
             </div>
 
@@ -66,9 +62,9 @@ export default function AddressIndex({
                     <TableHeader>
                         <TableRow>
                             <TableHead>ID</TableHead>
-                            <TableHead>District</TableHead>
-                            <TableHead>City</TableHead>
-                            <TableHead>County</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Is Insurance</TableHead>
+                            <TableHead>Active</TableHead>
                             <TableHead className="text-right">
                                 Actions
                             </TableHead>
@@ -76,22 +72,26 @@ export default function AddressIndex({
                     </TableHeader>
                     <TableBody>
                         {rows.length > 0 ? (
-                            rows.map((address) => (
-                                <TableRow key={address.id}>
-                                    <TableCell>{address.id}</TableCell>
-                                    <TableCell>{address.district}</TableCell>
-                                    <TableCell>{address.city}</TableCell>
-                                    <TableCell>{address.county}</TableCell>
+                            rows.map((patientCategory) => (
+                                <TableRow key={patientCategory.id}>
+                                    <TableCell>{patientCategory.id}</TableCell>
+                                    <TableCell>{patientCategory.name}</TableCell>
+                                    <TableCell>{patientCategory.is_insurance ? 'Yes' : 'No'}</TableCell>
+                                    <TableCell>
+                                            <span className={`px-2 py-1 text-xs rounded-full ${patientCategory.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                {patientCategory.is_active ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </TableCell>
                                     <TableCell className="space-x-2 text-right">
-                                        <Link href={edit(address.id).url}>
+                                        <Link href={edit(patientCategory.id).url}>
                                             <Button size="sm" variant="outline">
-                                                Edit
+                                            Edit
                                             </Button>
                                         </Link>
                                         <Button 
                                             size="sm" 
                                             variant="destructive"
-                                            onClick={() => handleDelete(address.id)}
+                                            onClick={() => handleDelete(patientCategory.id)}
                                         >
                                             Delete
                                         </Button>
@@ -104,21 +104,21 @@ export default function AddressIndex({
                                     colSpan={5}
                                     className="py-4 text-center"
                                 >
-                                    No addresses found.
+                                    No patient categories found.
                                 </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
                 </Table>
 
-                {(!Array.isArray(addresses) && addresses.links?.length) ? (
+                {(!Array.isArray(patientCategories) && patientCategories.links?.length) ? (
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>
-                                <PaginationPrevious href={addresses.prev_page_url ?? undefined} />
+                                <PaginationPrevious href={patientCategories.prev_page_url ?? undefined} />
                             </PaginationItem>
 
-                            {addresses.links.map((link, idx) => {
+                            {patientCategories.links.map((link, idx) => {
                                 // Strip HTML tags from label
                                 const label = link.label.replace(/<[^>]*>/g, '').trim();
                                 if (label === '...') {
@@ -143,7 +143,7 @@ export default function AddressIndex({
                             })}
 
                             <PaginationItem>
-                                <PaginationNext href={addresses.next_page_url ?? undefined} />
+                                <PaginationNext href={patientCategories.next_page_url ?? undefined} />
                             </PaginationItem>
                         </PaginationContent>
                     </Pagination>
