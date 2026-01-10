@@ -26,10 +26,7 @@ class PatientFactory extends Factory
     {
         $dob = $this->faker->dateTimeBetween('-90 years', '-0 years');
         $dobDate = Carbon::parse($dob)->toDateString();
-        $ageYears = Carbon::parse($dob)->diffInYears(now());
-        $ageMonths = Carbon::parse($dob)->diffInMonths(now()) - ($ageYears * 12);
-        $isPediatric = $ageYears < 18;
-
+       
         $genders = array_map(fn($c) => $c->value, EnumsGender::cases());
         $maritals = array_map(fn($c) => $c->value, EnumsMaritalStatus::cases());
         $religions = array_map(fn($c) => $c->value, EnumsReligions::cases());
@@ -44,10 +41,6 @@ class PatientFactory extends Factory
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
             'date_of_birth' => $dobDate,
-
-            'is_pediatric' => $isPediatric,
-            'age_years' => $ageYears,
-            'age_months' => $ageMonths,
 
             'preferred_language' => $this->faker->randomElement(['English','French','Swahili','Arabic','Portuguese']),
             'religion' => $this->faker->randomElement($religions),

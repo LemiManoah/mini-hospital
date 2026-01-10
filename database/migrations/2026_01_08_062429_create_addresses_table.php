@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('county')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->unique(['district', 'city', 'county']);
         });
     }
 

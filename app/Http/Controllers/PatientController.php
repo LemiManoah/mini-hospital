@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Services\PatientService;
-use App\Http\Requests\PatientRequest;
+use App\Http\Requests\StorePatientRequest;
+use App\Http\Requests\UpdatePatientRequest;
 use App\Enums\EnumsKinRelationship;
 use App\Enums\EnumsGender;
 use App\Enums\EnumsMaritalStatus;
@@ -18,7 +19,8 @@ class PatientController extends Controller
 {
     public function __construct(
         protected PatientService $patientService,
-    ) {}
+    ) {
+    }
 
     public function index(Request $request)
     {
@@ -44,11 +46,19 @@ class PatientController extends Controller
 
     public function create()
     {
-        $countries = Country::all();
-        $patientCategories = PatientCategory::all();
-        $addresses = Address::all();
+        $countries = Country::select('id', 'name')->orderBy('name')->get();
+
+        $patientCategories = PatientCategory::select('id', 'name')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $addresses = Address::select('id', 'district', 'city', 'county')
+            ->orderBy('district')
+            ->orderBy('city')
+            ->get();
+
         return Inertia::render('Patients/Create', [
-            'patientNumber' => $this->patientService->generatePatientNumber(),
             'patientCategories' => $patientCategories,
             'addresses' => $addresses,
             'countries' => $countries,
@@ -60,7 +70,7 @@ class PatientController extends Controller
         ]);
     }
 
-    public function store(PatientRequest $request)
+    public function store(StorePatientRequest $request)
     {
         $this->patientService->createPatient($request->validated());
 
@@ -72,7 +82,7 @@ class PatientController extends Controller
     public function show(string $id)
     {
         $patient = $this->patientService->getPatientById($id);
-        
+
         return Inertia::render('Patients/Show', [
             'patient' => $patient,
             'kinRelationships' => EnumsKinRelationship::options(),
@@ -85,8 +95,22 @@ class PatientController extends Controller
     public function edit(string $id)
     {
         $patient = $this->patientService->getPatientById($id);
-        
+        $countries = Country::select('id', 'name')->orderBy('name')->get();
+
+        $patientCategories = PatientCategory::select('id', 'name')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $addresses = Address::select('id', 'district', 'city', 'county')
+            ->orderBy('district')
+            ->orderBy('city')
+            ->get();
+
         return Inertia::render('Patients/Edit', [
+            'countries' => $countries,
+            'patientCategories' => $patientCategories,
+            'addresses' => $addresses,
             'patient' => $patient,
             'kinRelationships' => EnumsKinRelationship::options(),
             'genders' => EnumsGender::options(),
@@ -95,24 +119,24 @@ class PatientController extends Controller
         ]);
     }
 
-    public function update(PatientRequest $request, string $id)
+    public function update(UpdatePatientRequest $request, string $id)
     {
         $this->patientService->updatePatient($id, $request->validated());
 
-        return back()->with('success', 'Patient updated successfully');
+        return redirect()->route('patients.index')->with('success', 'Patient updated successfully');
     }
 
     public function destroy(string $id)
     {
         $this->patientService->deletePatient($id);
 
-        return back()->with('success', 'Patient deleted successfully');
+        return redirect()->route('patients.index')->with('success', 'Patient deleted successfully');
     }
 
     public function restore(string $id)
     {
         $this->patientService->restorePatient($id);
 
-        return back()->with('success', 'Patient restored successfully');
+        return redirect()->route('patients.index')->with('success', 'Patient restored successfully');
     }
 }

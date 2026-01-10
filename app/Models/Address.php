@@ -22,4 +22,10 @@ class Address extends Model
     {
         return $this->hasOne(Patient::class);
     }
+
+    public function getDisplayNameAttribute(): string
+    {
+        return "{$this->district} - {$this->city} - {$this->county}";
+    }
+
 }
