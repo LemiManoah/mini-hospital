@@ -17,10 +17,20 @@ class PatientCategoryController extends Controller
         protected PatientCategoryService $service
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->get('search');
+
+        if (!empty($search)) {
+            $patientCategories = $this->service->searchPatientCategory($search);
+        } else {
+            $patientCategories = $this->service->getAllPatientCategories();
+        }
         return Inertia::render('PatientCategories/Index', [
-            'patientCategories' => $this->service->getAllPatientCategories(),
+            'patientCategories' => $patientCategories,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 

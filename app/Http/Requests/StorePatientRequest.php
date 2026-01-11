@@ -19,7 +19,7 @@ class StorePatientRequest extends FormRequest
     {
         return [
             'patient_number' => [
-                'required',
+                'nullable',
                 'string',
                 'max:50',
                 'unique:patients,patient_number',

@@ -13,16 +13,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
 
-        User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => 'password',
-                'email_verified_at' => now(),
-            ]
-        );
+        // Seed roles & permissions first
+        $this->call(RolePermissionSeeder::class);
+
+        // Seed initial users and assign roles (admin, doctor, receptionist)
+        $this->call(UserSeeder::class);
 
         // Seed countries
         $this->call(CountrySeeder::class);
@@ -32,6 +28,9 @@ class DatabaseSeeder extends Seeder
         $this->call(AddressSeeder::class);
         // Seed patients
         $this->call(PatientSeeder::class);
+
+        // Seed appointments (requires patients and doctor users)
+        $this->call(AppointmentSeeder::class);
         
     }
 }

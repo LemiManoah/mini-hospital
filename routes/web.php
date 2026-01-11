@@ -5,6 +5,7 @@ use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\PatientCategoryController;
 
 Route::get('/', function () {
@@ -21,6 +22,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('patients', PatientController::class);
     Route::resource('patient-categories', PatientCategoryController::class);
     Route::resource('addresses', AddressController::class);
+    Route::resource('appointments', AppointmentController::class);
+
 });
 
 require __DIR__.'/settings.php';

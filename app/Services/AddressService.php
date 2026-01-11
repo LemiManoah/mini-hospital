@@ -8,6 +8,7 @@ class AddressService
     public function searchAddresses($query)
     {
         return Address::where('district', 'like', "%$query%")
+            ->orWhere('city', 'like', "%$query%")
             ->orWhere('county', 'like', "%$query%");
     }
     public function getAllAddresses()

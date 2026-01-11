@@ -8,137 +8,109 @@ import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent } from 'react';
 import { route } from '@/utils/route';
+import { index as indexRoute, update } from '@/routes/patients';
 
-type PatientCategory = {
-    id: number;
-    name: string;
+type Option = {
+    value: string;
+    label: string;
 };
 
-type Patient = {
-    id: number;
-    patient_number: string;
-    first_name: string;
-    last_name: string;
-    date_of_birth: string;
-    gender: string;
-    marital_status: string;
-    is_pediatric: boolean;
-    age_years: number | null;
-    age_months: number | null;
-    preferred_language: string | null;
-    religion: string | null;
-    country_id: number | null;
-    address_id: number | null;
-    registration_date: string;
-    is_active: boolean;
-    patient_category_id: string;
-    next_of_kin_name: string | null;
-    next_of_kin_number: string | null;
-    next_of_kin_relationship: string | null;
-    phone_number: string;
-    alternative_phone_number: string | null;
-    phone_owner: boolean;
+type Props = {
+    patient: {
+        id: number;
+        patient_number: string;
+        first_name: string;
+        last_name: string;
+        date_of_birth: string;
+        gender: string;
+        marital_status: string;
+        preferred_language: string;
+        religion: string;
+        country_id: string;
+        address_id: string;
+        patient_category_id: string;
+        registration_date: string;
+        phone_number: string;
+        alternative_phone_number: string;
+        phone_owner: boolean;
+        next_of_kin_name: string;
+        next_of_kin_number: string;
+        next_of_kin_relationship: string;
+        is_active: boolean;
+    };
+    patientCategories: Array<{ id: number; name: string }>;
+    addresses: Array<{ id: number; display_name: string }>;
+    countries: Array<{ id: number; name: string }>;
+    genders: Option[];
+    maritalStatuses: Option[];
+    religions: Option[];
+    kinRelationships: Option[];
 };
 
-const breadcrumbs = (patient: Patient): BreadcrumbItem[] => [
-    {
-        title: 'Dashboard',
-        href: dashboard().url,
-    },
-    {
-        title: 'Patients',
-        href: route('patients.index'),
-    },
-    {
-        title: 'Edit Patient',
-        href: '#',
-    },
-];
-
-export default function PatientEdit({ 
-    patient, 
-    patientCategories = [] 
-}: { 
-    patient: Patient; 
-    patientCategories?: PatientCategory[];
-}) {
+export default function PatientEdit({
+    patient,
+    patientCategories = [],
+    addresses = [],
+    countries = [],
+    genders = [],
+    maritalStatuses = [],
+    religions = [],
+    kinRelationships = [],
+}: Props) {
     const { data, setData, put, processing, errors } = useForm({
-        patient_number: patient.patient_number,
-        first_name: patient.first_name,
-        last_name: patient.last_name,
-        date_of_birth: patient.date_of_birth,
-        gender: patient.gender,
-        marital_status: patient.marital_status,
-        is_pediatric: patient.is_pediatric,
-        age_years: patient.age_years,
-        age_months: patient.age_months,
+        first_name: patient.first_name || '',
+        last_name: patient.last_name || '',
+        date_of_birth: patient.date_of_birth || '',
+        gender: patient.gender || '',
+        marital_status: patient.marital_status || '',
         preferred_language: patient.preferred_language || '',
         religion: patient.religion || '',
-        country_id: patient.country_id,
-        address_id: patient.address_id,
-        registration_date: patient.registration_date,
-        is_active: patient.is_active,
-        patient_category_id: patient.patient_category_id,
+        country_id: patient.country_id || '',
+        address_id: patient.address_id || '',
+        patient_category_id: patient.patient_category_id || '',
+        registration_date: patient.registration_date || new Date().toISOString().split('T')[0],
+        phone_number: patient.phone_number || '',
+        alternative_phone_number: patient.alternative_phone_number || '',
+        phone_owner: patient.phone_owner || true,
         next_of_kin_name: patient.next_of_kin_name || '',
         next_of_kin_number: patient.next_of_kin_number || '',
         next_of_kin_relationship: patient.next_of_kin_relationship || '',
-        phone_number: patient.phone_number,
-        alternative_phone_number: patient.alternative_phone_number || '',
-        phone_owner: patient.phone_owner,
+        is_active: patient.is_active || true,
     });
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        put(route('patients.update', {id: patient.id}));
+        put(`/patients/${patient.id}`);
     };
 
-    // Update age when date of birth changes
-    useEffect(() => {
-        if (data.date_of_birth) {
-            const birthDate = new Date(data.date_of_birth);
-            const today = new Date();
-            
-            let ageYears = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                ageYears--;
-            }
-            
-            const birthDateThisYear = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
-            let ageMonths = today.getMonth() - birthDate.getMonth();
-            
-            if (today < birthDateThisYear) {
-                ageMonths = 12 - birthDate.getMonth() + today.getMonth();
-            }
-            
-            if (ageMonths < 0) ageMonths += 12;
-            
-            setData({
-                ...data,
-                age_years: ageYears,
-                age_months: ageMonths,
-                is_pediatric: ageYears < 18,
-            });
-        }
-    }, [data.date_of_birth]);
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard().url,
+        },
+        {
+            title: 'Patients',
+            href: indexRoute().url,
+        },
+        {
+            title: `Edit Patient - ${patient.patient_number}`,
+            href: '#',
+        },
+    ];
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs(patient)}>
-            <Head title={`Edit ${patient.first_name} ${patient.last_name}`} />
-            
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title={`Edit Patient - ${patient.patient_number}`} />
             <div className="mt-4 mb-4 flex items-center justify-between gap-2 px-4">
                 <div className="flex items-center gap-2">
-                    <Link href={route('patients.show', {id: patient.id})} className="mr-2">
+                    <Link href={indexRoute().url} className="mr-2">
                         <Button variant="ghost" size="icon">
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                     </Link>
-                    <h1 className="text-2xl font-bold">
-                        Edit {patient.first_name} {patient.last_name}
-                    </h1>
+                    <h1 className="text-2xl font-bold">Edit Patient: {patient.patient_number}</h1>
                 </div>
             </div>
 
@@ -150,14 +122,8 @@ export default function PatientEdit({
                             <h2 className="text-lg font-semibold">Basic Information</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="patient_number">Patient Number</Label>
-                                    <Input
-                                        id="patient_number"
-                                        value={data.patient_number}
-                                        onChange={(e) => setData('patient_number', e.target.value)}
-                                        disabled
-                                    />
-                                    {errors.patient_number && <p className="text-sm text-red-500">{errors.patient_number}</p>}
+                                    <Label>Patient Number</Label>
+                                    <Input value={patient.patient_number} disabled />
                                 </div>
 
                                 <div className="space-y-2">
@@ -188,63 +154,158 @@ export default function PatientEdit({
                                     <Label htmlFor="date_of_birth">Date of Birth *</Label>
                                     <Input
                                         id="date_of_birth"
+                                        name="date_of_birth"
                                         type="date"
-                                        value={data.date_of_birth}
-                                        onChange={(e) => setData('date_of_birth', e.target.value)}
                                         required
-                                        max={new Date().toISOString().split('T')[0]}
+                                        value={data.date_of_birth ? new Date(data.date_of_birth).toISOString().split('T')[0] : ''}
+                                        onChange={(e) => setData('date_of_birth', e.target.value)}
                                     />
                                     {errors.date_of_birth && <p className="text-sm text-red-500">{errors.date_of_birth}</p>}
-                                    {data.age_years !== null && (
-                                        <p className="text-xs text-gray-500">
-                                            Age: {data.age_years} years{data.age_months ? `, ${data.age_months} months` : ''}
-                                        </p>
-                                    )}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="gender">Gender *</Label>
-                                    <Select
-                                        value={data.gender}
-                                        onValueChange={(value) => setData('gender', value)}
-                                    >
+                                    <Select name="gender" required value={data.gender} onValueChange={(value) => setData('gender', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select gender" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="male">Male</SelectItem>
-                                            <SelectItem value="female">Female</SelectItem>
-                                            <SelectItem value="other">Other</SelectItem>
+                                            {genders.map((gender) => (
+                                                <SelectItem key={gender.value} value={gender.value}>
+                                                    {gender.label}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                     {errors.gender && <p className="text-sm text-red-500">{errors.gender}</p>}
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="marital_status">Marital Status</Label>
-                                    <Select
-                                        value={data.marital_status}
-                                        onValueChange={(value) => setData('marital_status', value)}
-                                    >
+                                    <Label htmlFor="marital_status">Marital Status *</Label>
+                                    <Select name="marital_status" required value={data.marital_status} onValueChange={(value) => setData('marital_status', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select status" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="single">Single</SelectItem>
-                                            <SelectItem value="married">Married</SelectItem>
-                                            <SelectItem value="divorced">Divorced</SelectItem>
-                                            <SelectItem value="widowed">Widowed</SelectItem>
+                                            {maritalStatuses.map((status) => (
+                                                <SelectItem key={status.value} value={status.value}>
+                                                    {status.label}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                     {errors.marital_status && <p className="text-sm text-red-500">{errors.marital_status}</p>}
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="patient_category_id">Patient Category *</Label>
-                                    <Select
-                                        value={data.patient_category_id}
-                                        onValueChange={(value) => setData('patient_category_id', value)}
-                                    >
+                                    <Label htmlFor="religion">Religion</Label>
+                                    <Select name="religion" value={data.religion} onValueChange={(value) => setData('religion', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select religion" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {religions.map((religion) => (
+                                                <SelectItem key={religion.value} value={religion.value}>
+                                                    {religion.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.religion && <p className="text-sm text-red-500">{errors.religion}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="preferred_language">Preferred Language</Label>
+                                    <Input
+                                        id="preferred_language"
+                                        value={data.preferred_language}
+                                        onChange={(e) => setData('preferred_language', e.target.value)}
+                                        placeholder="Enter preferred language"
+                                    />
+                                    {errors.preferred_language && <p className="text-sm text-red-500">{errors.preferred_language}</p>}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Contact Information */}
+                        <div className="space-y-4 col-span-3">
+                            <h2 className="text-lg font-semibold">Contact Information</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="phone_number">Phone Number *</Label>
+                                    <Input
+                                        id="phone_number"
+                                        name="phone_number"
+                                        placeholder="+256 XXX XXX XXX"
+                                        value={data.phone_number}
+                                        onChange={(e) => setData('phone_number', e.target.value)}
+                                        required
+                                    />
+                                    {errors.phone_number && <p className="text-sm text-red-500">{errors.phone_number}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="alternative_phone_number">Alternative Phone</Label>
+                                    <Input
+                                        id="alternative_phone_number"
+                                        name="alternative_phone_number"
+                                        placeholder="+256 XXX XXX XXX"
+                                        value={data.alternative_phone_number}
+                                        onChange={(e) => setData('alternative_phone_number', e.target.value)}
+                                    />
+                                    {errors.alternative_phone_number && <p className="text-sm text-red-500">{errors.alternative_phone_number}</p>}
+                                </div>
+                                <div className="flex items-center space-x-2 pt-8">
+                                    <Checkbox
+                                        id="phone_owner"
+                                        name="phone_owner"
+                                        checked={data.phone_owner}
+                                        onCheckedChange={(checked) => setData('phone_owner', Boolean(checked))}
+                                    />
+                                    <Label htmlFor="phone_owner">Phone belongs to patient</Label>
+                                    {errors.phone_owner && <p className="text-sm text-red-500">{errors.phone_owner}</p>}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Address Information */}
+                        <div className="space-y-4 col-span-3">
+                            <h2 className="text-lg font-semibold">Address Information</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="country_id">Country</Label>
+                                    <Select name="country_id" value={data.country_id} onValueChange={(value) => setData('country_id', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select country" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {countries.map((country) => (
+                                                <SelectItem key={country.id} value={String(country.id)}>
+                                                    {country.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.country_id && <p className="text-sm text-red-500">{errors.country_id}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="address_id">Address</Label>
+                                    <Select name="address_id" value={data.address_id} onValueChange={(value) => setData('address_id', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select address" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {addresses.map((address) => (
+                                                <SelectItem key={address.id} value={String(address.id)}>
+                                                    {address.display_name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.address_id && <p className="text-sm text-red-500">{errors.address_id}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="patient_category_id">Patient Category</Label>
+                                    <Select name="patient_category_id" value={data.patient_category_id} onValueChange={(value) => setData('patient_category_id', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select category" />
                                         </SelectTrigger>
@@ -258,74 +319,6 @@ export default function PatientEdit({
                                     </Select>
                                     {errors.patient_category_id && <p className="text-sm text-red-500">{errors.patient_category_id}</p>}
                                 </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="registration_date">Registration Date *</Label>
-                                    <Input
-                                        id="registration_date"
-                                        type="date"
-                                        value={data.registration_date}
-                                        onChange={(e) => setData('registration_date', e.target.value)}
-                                        required
-                                    />
-                                    {errors.registration_date && <p className="text-sm text-red-500">{errors.registration_date}</p>}
-                                </div>
-
-                                <div className="flex items-center space-x-2 pt-5">
-                                    <Checkbox
-                                        id="is_active"
-                                        checked={data.is_active}
-                                        onCheckedChange={(checked) => setData('is_active', Boolean(checked))}
-                                    />
-                                    <Label htmlFor="is_active">Active</Label>
-                                </div>
-
-                                <div className="flex items-center space-x-2 pt-5">
-                                    <Checkbox
-                                        id="is_pediatric"
-                                        checked={data.is_pediatric}
-                                        onCheckedChange={(checked) => setData('is_pediatric', Boolean(checked))}
-                                    />
-                                    <Label htmlFor="is_pediatric">Pediatric Patient</Label>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Contact Information */}
-                        <div className="space-y-4 col-span-3">
-                            <h2 className="text-lg font-semibold">Contact Information</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="phone_number">Phone Number *</Label>
-                                    <Input
-                                        id="phone_number"
-                                        value={data.phone_number}
-                                        onChange={(e) => setData('phone_number', e.target.value)}
-                                        placeholder="Enter phone number"
-                                        required
-                                    />
-                                    {errors.phone_number && <p className="text-sm text-red-500">{errors.phone_number}</p>}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="alternative_phone_number">Alternative Phone</Label>
-                                    <Input
-                                        id="alternative_phone_number"
-                                        value={data.alternative_phone_number || ''}
-                                        onChange={(e) => setData('alternative_phone_number', e.target.value)}
-                                        placeholder="Enter alternative phone"
-                                    />
-                                    {errors.alternative_phone_number && <p className="text-sm text-red-500">{errors.alternative_phone_number}</p>}
-                                </div>
-
-                                <div className="flex items-center space-x-2 pt-5">
-                                    <Checkbox
-                                        id="phone_owner"
-                                        checked={data.phone_owner}
-                                        onCheckedChange={(checked) => setData('phone_owner', Boolean(checked))}
-                                    />
-                                    <Label htmlFor="phone_owner">Phone belongs to patient</Label>
-                                </div>
                             </div>
                         </div>
 
@@ -337,68 +330,78 @@ export default function PatientEdit({
                                     <Label htmlFor="next_of_kin_name">Name</Label>
                                     <Input
                                         id="next_of_kin_name"
-                                        value={data.next_of_kin_name || ''}
+                                        name="next_of_kin_name"
+                                        type="text"
+                                        placeholder="Full name"
+                                        value={data.next_of_kin_name}
                                         onChange={(e) => setData('next_of_kin_name', e.target.value)}
-                                        placeholder="Enter name"
                                     />
                                     {errors.next_of_kin_name && <p className="text-sm text-red-500">{errors.next_of_kin_name}</p>}
                                 </div>
-
                                 <div className="space-y-2">
                                     <Label htmlFor="next_of_kin_number">Phone Number</Label>
                                     <Input
                                         id="next_of_kin_number"
-                                        value={data.next_of_kin_number || ''}
+                                        name="next_of_kin_number"
+                                        type="tel"
+                                        placeholder="+256 XXX XXX XXX"
+                                        value={data.next_of_kin_number}
                                         onChange={(e) => setData('next_of_kin_number', e.target.value)}
-                                        placeholder="Enter phone number"
                                     />
                                     {errors.next_of_kin_number && <p className="text-sm text-red-500">{errors.next_of_kin_number}</p>}
                                 </div>
-
                                 <div className="space-y-2">
                                     <Label htmlFor="next_of_kin_relationship">Relationship</Label>
-                                    <Input
-                                        id="next_of_kin_relationship"
-                                        value={data.next_of_kin_relationship || ''}
-                                        onChange={(e) => setData('next_of_kin_relationship', e.target.value)}
-                                        placeholder="E.g., Spouse, Parent, etc."
-                                    />
+                                    <Select name="next_of_kin_relationship" value={data.next_of_kin_relationship} onValueChange={(value) => setData('next_of_kin_relationship', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select relationship" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {kinRelationships.map((relation) => (
+                                                <SelectItem key={relation.value} value={relation.value}>
+                                                    {relation.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     {errors.next_of_kin_relationship && <p className="text-sm text-red-500">{errors.next_of_kin_relationship}</p>}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Additional Information */}
+                        {/* Registration & Status */}
                         <div className="space-y-4 col-span-3">
-                            <h2 className="text-lg font-semibold">Additional Information</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <h2 className="text-lg font-semibold">Registration</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="preferred_language">Preferred Language</Label>
+                                    <Label htmlFor="registration_date">Registration Date *</Label>
                                     <Input
-                                        id="preferred_language"
-                                        value={data.preferred_language || ''}
-                                        onChange={(e) => setData('preferred_language', e.target.value)}
-                                        placeholder="E.g., English, Spanish, etc."
+                                        id="registration_date"
+                                        name="registration_date"
+                                        type="date"
+                                        required
+                                        readOnly
+                                        className="bg-gray-100"
+                                        value={data.registration_date ? new Date(data.registration_date).toISOString().split('T')[0] : ''}
                                     />
-                                    {errors.preferred_language && <p className="text-sm text-red-500">{errors.preferred_language}</p>}
+                                    {errors.registration_date && <p className="text-sm text-red-500">{errors.registration_date}</p>}
                                 </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="religion">Religion</Label>
-                                    <Input
-                                        id="religion"
-                                        value={data.religion || ''}
-                                        onChange={(e) => setData('religion', e.target.value)}
-                                        placeholder="Enter religion"
+                                <div className="flex items-center space-x-2 pt-8">
+                                    <Checkbox
+                                        id="is_active"
+                                        name="is_active"
+                                        checked={data.is_active}
+                                        onCheckedChange={(checked) => setData('is_active', Boolean(checked))}
                                     />
-                                    {errors.religion && <p className="text-sm text-red-500">{errors.religion}</p>}
+                                    <Label htmlFor="is_active">Active</Label>
+                                    {errors.is_active && <p className="text-sm text-red-500">{errors.is_active}</p>}
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex justify-end space-x-4 pt-4">
-                        <Link href={route('patients.show', {id: patient.id})}>
+                        <Link href={indexRoute().url}>
                             <Button type="button" variant="outline">
                                 Cancel
                             </Button>

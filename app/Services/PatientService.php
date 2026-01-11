@@ -3,38 +3,31 @@
 namespace App\Services;
 
 use App\Models\Patient;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
 
 class PatientService
 {
     public function getAllPatients(int $perPage = 15): LengthAwarePaginator
     {
-        return Patient::with(['patientCategory', 'address'])
+        return Patient::with(['patientCategory', 'address', 'country'])
             ->latest()
             ->paginate($perPage);
     }
 
     public function getPatientById(string $id): Patient
     {
-        return Patient::with(['patientCategory', 'address'])
+        return Patient::with(['patientCategory', 'address', 'country'])
             ->findOrFail($id);
     }
 
-    public function createPatient(array $data): Patient
+    public function createPatient(array $data)
     {
         return DB::transaction(function () use ($data) {
-            $patient = Patient::create([
-                ...$data,
-                'patient_number' => 'TEMP',
-            ]);
-
-            $patient->update([
-                'patient_number' => 'PAT-' . str_pad($patient->id, 6, '0', STR_PAD_LEFT),
-            ]);
-
-            return $patient;
+            return Patient::create($data);
         });
     }
 
@@ -66,9 +59,14 @@ class PatientService
                 ->orWhere('phone_number', 'like', "%{$term}%")
                 ->orWhere('alternative_phone_number', 'like', "%{$term}%");
         })
-            ->with(['patientCategory', 'address'])
+            ->with(['patientCategory', 'address', 'country'])
             ->latest()
             ->paginate(15)
             ->withQueryString();
+    }
+
+    public function generatePatientNumber(): string
+    {
+        return 'PAT-' . strtoupper(Str::random(8));
     }
 }

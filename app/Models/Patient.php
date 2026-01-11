@@ -25,21 +25,21 @@ class Patient extends Model
         'first_name',
         'last_name',
         'date_of_birth',
+        'gender',
+        'marital_status',
         'preferred_language',
         'religion',
         'country_id',
         'address_id',
-        'registration_date',
-        'is_active',    
-        'gender',
-        'marital_status',
         'patient_category_id',
-        'next_of_kin_name',
-        'next_of_kin_number',
-        'next_of_kin_relationship',
+        'registration_date',
         'phone_number',
         'alternative_phone_number',
         'phone_owner',
+        'next_of_kin_name',
+        'next_of_kin_number',
+        'next_of_kin_relationship',
+        'is_active'
     ];
 
     protected $casts = [

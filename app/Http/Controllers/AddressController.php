@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use App\Services\AddressService;
 use App\Http\Requests\AddressRequest;
 use Illuminate\Http\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class AddressController extends Controller
 {
@@ -13,12 +14,21 @@ class AddressController extends Controller
         protected AddressService $addressService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $addresses = $this->addressService->getAllAddresses();
+        $search = $request->get('search');
+
+        if (!empty($search)) {
+            $addresses = $this->addressService->searchAddresses($search);
+        } else {
+            $addresses = $this->addressService->getAllAddresses();
+        }
 
         return Inertia::render('Address/Index', [
             'addresses' => $addresses,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 

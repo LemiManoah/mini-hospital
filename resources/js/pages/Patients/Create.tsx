@@ -8,17 +8,9 @@ import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent } from 'react';
 import { route } from '@/utils/route';
-import { create, index} from '@/routes/patients';
-import { PatientCategory } from '@/types/patientcategories';
-import { Address } from '@/types/address';
-
-type Country = {
-    id: number;
-    name: string;
-}
-
+import { index as indexRoute } from '@/routes/patients';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,7 +19,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Patients',
-        href: index().url,
+        href: indexRoute().url,
     },
     {
         title: 'Create Patient',
@@ -35,95 +27,62 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface SelectOption {
+type Option = {
     value: string;
     label: string;
-}
+};
 
-export default function PatientCreate({ 
-    patientCategories = [], 
+type Props = {
+    patientCategories: Array<{ id: number; name: string }>;
+    addresses: Array<{ id: number; display_name: string }>;
+    countries: Array<{ id: number; name: string }>;
+    genders: Option[];
+    maritalStatuses: Option[];
+    religions: Option[];
+    kinRelationships: Option[];
+};
+
+export default function PatientCreate({
+    patientCategories = [],
     addresses = [],
     countries = [],
-    religions = [],
-    kinRelationships = [], 
-    genders = [], 
+    genders = [],
     maritalStatuses = [],
-}: { 
-    patientCategories?: PatientCategory[], 
-    addresses?: Address[], 
-    countries?: Country[], 
-    kinRelationships?: SelectOption[], 
-    genders?: SelectOption[], 
-    maritalStatuses?: SelectOption[],
-    religions?: SelectOption[] 
-}) {
+    religions = [],
+    kinRelationships = [],
+}: Props) {
     const { data, setData, post, processing, errors } = useForm({
-        patient_number: '',
         first_name: '',
         last_name: '',
         date_of_birth: '',
         gender: '',
         marital_status: '',
-        is_pediatric: false,
-        age_years: null as number | null,
-        age_months: null as number | null,
         preferred_language: '',
         religion: '',
-        country_id: null as number | null,
-        address_id: null as number | null,
-        registration_date: new Date().toISOString().split('T')[0],
-        is_active: true,
+        country_id: '',
+        address_id: '',
         patient_category_id: '',
-        next_of_kin_name: '',
-        next_of_kin_number: '',
-        next_of_kin_relationship: '',
+        registration_date: new Date().toISOString().split('T')[0],
         phone_number: '',
         alternative_phone_number: '',
         phone_owner: true,
+        next_of_kin_name: '',
+        next_of_kin_number: '',
+        next_of_kin_relationship: '',
+        is_active: true,
     });
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        post(create().url);
+        post('/patients');
     };
-
-    // Update age when date of birth changes
-    useEffect(() => {
-        if (data.date_of_birth) {
-            const birthDate = new Date(data.date_of_birth);
-            const today = new Date();
-            
-            let ageYears = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                ageYears--;
-            }
-            
-            const birthDateThisYear = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
-            let ageMonths = today.getMonth() - birthDate.getMonth();
-            
-            if (today < birthDateThisYear) {
-                ageMonths = 12 - birthDate.getMonth() + today.getMonth();
-            }
-            
-            if (ageMonths < 0) ageMonths += 12;
-            
-            setData({
-                ...data,
-                age_years: ageYears,
-                age_months: ageMonths,
-                is_pediatric: ageYears < 18,
-            });
-        }
-    }, [data.date_of_birth]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Patient" />
             <div className="mt-4 mb-4 flex items-center justify-between gap-2 px-4">
                 <div className="flex items-center gap-2">
-                    <Link href={index().url} className="mr-2">
+                    <Link href={indexRoute().url} className="mr-2">
                         <Button variant="ghost" size="icon">
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
@@ -140,15 +99,8 @@ export default function PatientCreate({
                             <h2 className="text-lg font-semibold">Basic Information</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="patient_number">Patient Number</Label>
-                                    <Input
-                                        id="patient_number"
-                                        value={data.patient_number}
-                                        onChange={(e) => setData('patient_number', e.target.value)}
-                                        placeholder="Auto-generated"
-                                        disabled
-                                    />
-                                    {errors.patient_number && <p className="text-sm text-red-500">{errors.patient_number}</p>}
+                                    <Label>Patient Number</Label>
+                                    <Input value="Auto-generated" disabled />
                                 </div>
 
                                 <div className="space-y-2">
@@ -179,107 +131,114 @@ export default function PatientCreate({
                                     <Label htmlFor="date_of_birth">Date of Birth *</Label>
                                     <Input
                                         id="date_of_birth"
+                                        name="date_of_birth"
                                         type="date"
+                                        required
                                         value={data.date_of_birth}
                                         onChange={(e) => setData('date_of_birth', e.target.value)}
-                                        required
-                                        max={new Date().toISOString().split('T')[0]}
                                     />
                                     {errors.date_of_birth && <p className="text-sm text-red-500">{errors.date_of_birth}</p>}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="gender">Gender *</Label>
-                                    <Select
-                                        value={data.gender}
-                                        onValueChange={(value) => setData('gender', value)}
-                                    >
+                                    <Select name="gender" required value={data.gender} onValueChange={(value) => setData('gender', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select gender" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {
-                                                genders.map((gender) => (
-                                                    <SelectItem key={gender.value} value={gender.value}>
-                                                        {gender.label}
-                                                    </SelectItem>
-                                                ))
-                                            }
+                                            {genders.map((gender) => (
+                                                <SelectItem key={gender.value} value={gender.value}>
+                                                    {gender.label}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                     {errors.gender && <p className="text-sm text-red-500">{errors.gender}</p>}
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="religion">Religion</Label>
-                                    <Select
-                                        value={data.religion}
-                                        onValueChange={(value) => setData('religion', value)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select religion" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {
-                                                religions.map((religion) => (
-                                                    <SelectItem key={religion.value} value={religion.value}>
-                                                        {religion.label}
-                                                    </SelectItem>
-                                                ))
-                                            }
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.religion && <p className="text-sm text-red-500">{errors.religion}</p>}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="marital_status">Marital Status</Label>
-                                    <Select
-                                        value={data.marital_status}
-                                        onValueChange={(value) => setData('marital_status', value)}
-                                    >
+                                    <Label htmlFor="marital_status">Marital Status *</Label>
+                                    <Select name="marital_status" required value={data.marital_status} onValueChange={(value) => setData('marital_status', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select status" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {
-                                                maritalStatuses.map((status) => (
-                                                    <SelectItem key={status.value} value={status.value}>
-                                                        {status.label}
-                                                    </SelectItem>
-                                                ))
-                                            }
+                                            {maritalStatuses.map((status) => (
+                                                <SelectItem key={status.value} value={status.value}>
+                                                    {status.label}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                     {errors.marital_status && <p className="text-sm text-red-500">{errors.marital_status}</p>}
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="address_id">Address *</Label>
-                                    <Select
-                                        value={data.address_id}
-                                        onValueChange={(value) => setData('address_id', value)}
-                                    >
+                                    <Label htmlFor="religion">Religion</Label>
+                                    <Select name="religion" value={data.religion} onValueChange={(value) => setData('religion', value)}>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select address" />
+                                            <SelectValue placeholder="Select religion" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {addresses.map((address) => (
-                                                <SelectItem key={address.id} value={String(address.id)}>
-                                                    {address.name}
+                                            {religions.map((religion) => (
+                                                <SelectItem key={religion.value} value={religion.value}>
+                                                    {religion.label}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.address_id && <p className="text-sm text-red-500">{errors.address_id}</p>}
+                                    {errors.religion && <p className="text-sm text-red-500">{errors.religion}</p>}
                                 </div>
 
+                                {/* contact information */}
+                                <div className="space-y-4 col-span-3">
+                            <h2 className="text-lg font-semibold">Contact Information</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="country_id">Country *</Label>
-                                    <Select
-                                        value={data.country_id}
-                                        onValueChange={(value) => setData('country_id', value)}
-                                    >
+                                    <Label htmlFor="phone_number">Phone Number *</Label>
+                                    <Input
+                                        id="phone_number"
+                                        name="phone_number"
+                                        placeholder="+256 XXX XXX XXX"
+                                        value={data.phone_number}
+                                        onChange={(e) => setData('phone_number', e.target.value)}
+                                        required
+                                    />
+                                    {errors.phone_number && <p className="text-sm text-red-500">{errors.phone_number}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="alternative_phone_number">Alternative Phone</Label>
+                                    <Input
+                                        id="alternative_phone_number"
+                                        name="alternative_phone_number"
+                                        placeholder="+256 XXX XXX XXX"
+                                        value={data.alternative_phone_number}
+                                        onChange={(e) => setData('alternative_phone_number', e.target.value)}
+                                    />
+                                    {errors.alternative_phone_number && <p className="text-sm text-red-500">{errors.alternative_phone_number}</p>}
+                                </div>
+                                <div className="flex items-center space-x-2 pt-8">
+                                    <Checkbox
+                                        id="phone_owner"
+                                        name="phone_owner"
+                                        value="1"
+                                        checked={data.phone_owner}
+                                        onCheckedChange={(checked) => setData('phone_owner', Boolean(checked))}
+                                    />
+                                    <Label htmlFor="phone_owner">Phone belongs to patient</Label>
+                                    {errors.phone_owner && <p className="text-sm text-red-500">{errors.phone_owner}</p>}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Address Information */}
+                        <div className="space-y-4 col-span-3">
+                            <h2 className="text-lg font-semibold">Address Information</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="country_id">Country</Label>
+                                    <Select name="country_id" value={data.country_id} onValueChange={(value) => setData('country_id', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select country" />
                                         </SelectTrigger>
@@ -293,13 +252,25 @@ export default function PatientCreate({
                                     </Select>
                                     {errors.country_id && <p className="text-sm text-red-500">{errors.country_id}</p>}
                                 </div>
-
                                 <div className="space-y-2">
-                                    <Label htmlFor="patient_category_id">Patient Category *</Label>
-                                    <Select
-                                        value={data.patient_category_id}
-                                        onValueChange={(value) => setData('patient_category_id', value)}
-                                    >
+                                    <Label htmlFor="address_id">Address</Label>
+                                    <Select name="address_id" value={data.address_id} onValueChange={(value) => setData('address_id', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select address" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {addresses.map((address) => (
+                                                <SelectItem key={address.id} value={String(address.id)}>
+                                                    {address.display_name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.address_id && <p className="text-sm text-red-500">{errors.address_id}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="patient_category_id">Patient Category</Label>
+                                    <Select name="patient_category_id" value={data.patient_category_id} onValueChange={(value) => setData('patient_category_id', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select category" />
                                         </SelectTrigger>
@@ -313,67 +284,6 @@ export default function PatientCreate({
                                     </Select>
                                     {errors.patient_category_id && <p className="text-sm text-red-500">{errors.patient_category_id}</p>}
                                 </div>
-
-                                
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="registration_date">Registration Date *</Label>
-                                    <Input
-                                        id="registration_date"
-                                        type="date"
-                                        value={data.registration_date}
-                                        onChange={(e) => setData('registration_date', e.target.value)}
-                                        required
-                                    />
-                                    {errors.registration_date && <p className="text-sm text-red-500">{errors.registration_date}</p>}
-                                </div>
-
-                                <div className="flex items-center space-x-2 pt-5">
-                                    <Checkbox
-                                        id="is_active"
-                                        checked={data.is_active}
-                                        onCheckedChange={(checked) => setData('is_active', Boolean(checked))}
-                                    />
-                                    <Label htmlFor="is_active">Active</Label>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Contact Information */}
-                        <div className="space-y-4 col-span-3">
-                            <h2 className="text-lg font-semibold">Contact Information</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="phone_number">Phone Number *</Label>
-                                    <Input
-                                        id="phone_number"
-                                        value={data.phone_number}
-                                        onChange={(e) => setData('phone_number', e.target.value)}
-                                        placeholder="Enter phone number"
-                                        required
-                                    />
-                                    {errors.phone_number && <p className="text-sm text-red-500">{errors.phone_number}</p>}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="alternative_phone_number">Alternative Phone</Label>
-                                    <Input
-                                        id="alternative_phone_number"
-                                        value={data.alternative_phone_number || ''}
-                                        onChange={(e) => setData('alternative_phone_number', e.target.value)}
-                                        placeholder="Enter alternative phone"
-                                    />
-                                    {errors.alternative_phone_number && <p className="text-sm text-red-500">{errors.alternative_phone_number}</p>}
-                                </div>
-
-                                <div className="flex items-center space-x-2 pt-5">
-                                    <Checkbox
-                                        id="phone_owner"
-                                        checked={data.phone_owner}
-                                        onCheckedChange={(checked) => setData('phone_owner', Boolean(checked))}
-                                    />
-                                    <Label htmlFor="phone_owner">Phone belongs to patient</Label>
-                                </div>
                             </div>
                         </div>
 
@@ -385,57 +295,90 @@ export default function PatientCreate({
                                     <Label htmlFor="next_of_kin_name">Name</Label>
                                     <Input
                                         id="next_of_kin_name"
-                                        value={data.next_of_kin_name || ''}
+                                        name="next_of_kin_name"
+                                        type="text"
+                                        placeholder="Full name"
+                                        value={data.next_of_kin_name}
                                         onChange={(e) => setData('next_of_kin_name', e.target.value)}
-                                        placeholder="Enter name"
                                     />
                                     {errors.next_of_kin_name && <p className="text-sm text-red-500">{errors.next_of_kin_name}</p>}
                                 </div>
-
                                 <div className="space-y-2">
                                     <Label htmlFor="next_of_kin_number">Phone Number</Label>
                                     <Input
                                         id="next_of_kin_number"
-                                        value={data.next_of_kin_number || ''}
+                                        name="next_of_kin_number"
+                                        type="tel"
+                                        placeholder="+256 XXX XXX XXX"
+                                        value={data.next_of_kin_number}
                                         onChange={(e) => setData('next_of_kin_number', e.target.value)}
-                                        placeholder="Enter phone number"
                                     />
                                     {errors.next_of_kin_number && <p className="text-sm text-red-500">{errors.next_of_kin_number}</p>}
                                 </div>
-
                                 <div className="space-y-2">
                                     <Label htmlFor="next_of_kin_relationship">Relationship</Label>
-                                    <Select
-                                        value={data.marital_status}
-                                        onValueChange={(value) => setData('marital_status', value)}
-                                    >
+                                    <Select name="next_of_kin_relationship" value={data.next_of_kin_relationship} onValueChange={(value) => setData('next_of_kin_relationship', value)}>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select status" />
+                                            <SelectValue placeholder="Select relationship" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {
-                                                kinRelationships.map((relationship) => (
-                                                    <SelectItem key={relationship.value} value={relationship.value}>
-                                                        {relationship.label}
-                                                    </SelectItem>
-                                                ))
-                                            }
+                                            {kinRelationships.map((relation) => (
+                                                <SelectItem key={relation.value} value={relation.value}>
+                                                    {relation.label}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                     {errors.next_of_kin_relationship && <p className="text-sm text-red-500">{errors.next_of_kin_relationship}</p>}
                                 </div>
                             </div>
                         </div>
+
+                        {/* Registration & Status */}
+                        <div className="space-y-4 col-span-3">
+                            <h2 className="text-lg font-semibold">Registration</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="registration_date">Registration Date *</Label>
+                                    <Input
+                                        id="registration_date"
+                                        name="registration_date"
+                                        type="date"
+                                        required
+                                        value={data.registration_date}
+                                        onChange={(e) => setData('registration_date', e.target.value)}
+                                    />
+                                    {errors.registration_date && <p className="text-sm text-red-500">{errors.registration_date}</p>}
+                                </div>
+                                <div className="flex items-center space-x-2 pt-8">
+                                    <Checkbox
+                                        id="is_active"
+                                        name="is_active"
+                                        value="1"
+                                        defaultChecked
+                                        checked={data.is_active}
+                                        onCheckedChange={(checked) => setData('is_active', Boolean(checked))}
+                                    />
+                                    <Label htmlFor="is_active">Active</Label>
+                                    {errors.is_active && <p className="text-sm text-red-500">{errors.is_active}</p>}
+                                </div>
+                            </div>
+                        </div>
+
+                                
+
+                            </div>
+                        </div>
                     </div>
 
                     <div className="flex justify-end space-x-4 pt-4">
-                        <Link href={index().url}>
+                        <Link href={indexRoute().url}>
                             <Button type="button" variant="outline">
                                 Cancel
                             </Button>
                         </Link>
                         <Button type="submit" disabled={processing}>
-                            {processing ? 'Saving...' : 'Save Patient'}
+                            {processing ? 'Creating...' : 'Create Patient'}
                         </Button>
                     </div>
                 </form>

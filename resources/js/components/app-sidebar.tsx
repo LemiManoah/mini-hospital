@@ -36,6 +36,11 @@ const mainNavItems: NavItem[] = [
         title: 'Patients',
         href: '/patients',
         icon: User2Icon,
+    },
+    {
+        title: 'Appointments',
+        href: '/appointments',
+        icon: Folder,
     }
 ];
 

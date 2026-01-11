@@ -3,17 +3,20 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use Illuminate\Http\Request;
-use App\Services\PatientService;
-use App\Http\Requests\StorePatientRequest;
-use App\Http\Requests\UpdatePatientRequest;
-use App\Enums\EnumsKinRelationship;
-use App\Enums\EnumsGender;
-use App\Enums\EnumsMaritalStatus;
-use App\Enums\EnumsReligions;
-use App\Models\PatientCategory;
 use App\Models\Address;
 use App\Models\Country;
+use App\Models\Patient;
+use App\Enums\EnumsGender;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Enums\EnumsReligions;
+use App\Models\PatientCategory;
+use App\Services\PatientService;
+use App\Enums\EnumsMaritalStatus;
+use App\Enums\EnumsKinRelationship;
+use Illuminate\Support\Facades\Log;
+use App\Http\Requests\StorePatientRequest;
+use App\Http\Requests\UpdatePatientRequest;
 
 class PatientController extends Controller
 {
@@ -56,7 +59,11 @@ class PatientController extends Controller
         $addresses = Address::select('id', 'district', 'city', 'county')
             ->orderBy('district')
             ->orderBy('city')
-            ->get();
+            ->get()
+            ->map(fn($address) => [
+                'id' => $address->id,
+                'display_name' => "{$address->district} - {$address->city} - {$address->county}"
+            ]);
 
         return Inertia::render('Patients/Create', [
             'patientCategories' => $patientCategories,
@@ -72,16 +79,38 @@ class PatientController extends Controller
 
     public function store(StorePatientRequest $request)
     {
-        $this->patientService->createPatient($request->validated());
+        try {
+            $validated = $request->validated();
 
-        return redirect()
-            ->route('patients.index')
-            ->with('success', 'Patient created successfully');
+            // Generate a unique patient number
+            do {
+                $validated['patient_number'] = $this->patientService->generatePatientNumber();
+            } while (Patient::where('patient_number', $validated['patient_number'])->exists());
+
+            $patient = $this->patientService->createPatient($validated);
+
+            return redirect()
+                ->route('patients.index')
+                ->with('success', 'Patient created successfully');
+        } catch (\Exception $e) {
+            Log::error('Error creating patient: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+
+            return back()
+                ->withInput()
+                ->with('error', 'Failed to create patient. Please try again.');
+        }
     }
+
 
     public function show(string $id)
     {
         $patient = $this->patientService->getPatientById($id);
+        $patient->load('address');
+
+        if ($patient->address) {
+            $patient->address->display_name = "{$patient->address->district} - {$patient->address->city} - {$patient->address->county}";
+        }
 
         return Inertia::render('Patients/Show', [
             'patient' => $patient,
@@ -105,7 +134,11 @@ class PatientController extends Controller
         $addresses = Address::select('id', 'district', 'city', 'county')
             ->orderBy('district')
             ->orderBy('city')
-            ->get();
+            ->get()
+            ->map(fn($address) => [
+                'id' => $address->id,
+                'display_name' => "{$address->district} - {$address->city} - {$address->county}"
+            ]);
 
         return Inertia::render('Patients/Edit', [
             'countries' => $countries,
