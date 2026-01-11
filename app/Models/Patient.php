@@ -7,6 +7,7 @@ use App\Models\Address;
 use App\Models\Country;
 use App\Enums\EnumsGender;
 use App\Models\PatientCategory;
+use App\Models\Appointment;
 use App\Enums\EnumsMaritalStatus;
 use App\Enums\EnumsKinRelationship;
 use App\Enums\EnumsReligions;
@@ -67,6 +68,11 @@ class Patient extends Model
     public function patientCategory()
     {
         return $this->belongsTo(PatientCategory::class);
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
     }
 
     public function getAgeAttribute(): string

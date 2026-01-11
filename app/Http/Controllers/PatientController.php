@@ -106,7 +106,12 @@ class PatientController extends Controller
     public function show(string $id)
     {
         $patient = $this->patientService->getPatientById($id);
-        $patient->load('address');
+        $patient->load(['address', 'appointments' => function($q) {
+            $q->with('doctor')
+                ->where('appointment_date', '>=', now()->toDateString())
+                ->orderBy('appointment_date')
+                ->orderBy('appointment_time');
+        }]);
 
         if ($patient->address) {
             $patient->address->display_name = "{$patient->address->district} - {$patient->address->city} - {$patient->address->county}";
@@ -114,6 +119,7 @@ class PatientController extends Controller
 
         return Inertia::render('Patients/Show', [
             'patient' => $patient,
+            'appointments' => $patient->appointments,
             'kinRelationships' => EnumsKinRelationship::options(),
             'genders' => EnumsGender::options(),
             'maritalStatuses' => EnumsMaritalStatus::options(),

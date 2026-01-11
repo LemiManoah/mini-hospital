@@ -39,16 +39,15 @@ class AppointmentController extends Controller
 
     public function create()
     {
-        $doctors = User::select('id', 'name')->orderBy('name')->get();
+        $doctors = User::role('doctor')->select('id', 'name')->get();
 
-        $patients = \App\Models\Patient::select('id', 'first_name', 'last_name')
+        $patients = Patient::select('id', 'first_name', 'last_name')
             ->orderBy('first_name')
             ->get()
             ->map(fn($p) => [
                 'id' => $p->id,
                 'name' => "{$p->first_name} {$p->last_name}",
             ]);
-
         return Inertia::render('Appointments/Create', [
             'statuses' => AppointmentStatus::options(),
             'doctors' => $doctors,
@@ -63,6 +62,16 @@ class AppointmentController extends Controller
         return redirect()
             ->route('appointments.index')
             ->with('success', 'Appointment created successfully');
+    }
+
+    public function show(string $id)
+    {
+        $appointment = $this->appointmentService->getAppointmentById($id);
+
+        return Inertia::render('Appointments/Show', [
+            'appointment' => $appointment,
+            'statuses' => AppointmentStatus::options(),
+        ]);
     }
 
     public function edit(Appointment $appointment)

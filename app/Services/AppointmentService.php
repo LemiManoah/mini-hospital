@@ -5,9 +5,13 @@ namespace App\Services;
 use App\Models\Appointment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Actions\Appointments\EnsureDoctorIsAvailable;
 
 class AppointmentService
 {
+    public function __construct(
+        protected EnsureDoctorIsAvailable $ensureDoctorIsAvailable
+    ) {}
     public function getAllAppointments(int $perPage = 15): LengthAwarePaginator
     {
         return Appointment::with(['patient', 'doctor'])
@@ -23,6 +27,11 @@ class AppointmentService
 
     public function createAppointment(array $data)
     {
+        $this->ensureDoctorIsAvailable->execute(
+            $data['doctor_id'],
+            $data['appointment_date'],
+            $data['appointment_time']
+        );
         return DB::transaction(function () use ($data) {
             return Appointment::create($data);
         });
@@ -32,6 +41,12 @@ class AppointmentService
     public function updateAppointment(string $id, array $data): Appointment
     {
         $appointment = $this->getAppointmentById($id);
+        $this->ensureDoctorIsAvailable->execute(
+            $data['doctor_id'],
+            $data['appointment_date'],
+            $data['appointment_time'],
+            $appointment->id
+        );
         $appointment->update($data);
 
         return $appointment->fresh(['patient', 'doctor']);
@@ -51,6 +66,8 @@ class AppointmentService
     {
         return Appointment::where(function ($query) use ($term) {
             $query->where('appointment_date', 'like', "%{$term}%")
+                ->orWhere('status', 'like', "%{$term}%")
+                ->orWhere('doctor_id', 'like', "%{$term}%")
                 ->orWhere('appointment_time', 'like', "%{$term}%");
         })
             ->with(['patient', 'doctor'])

@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { index as patientsIndex } from '@/routes/patients';
+import { show as appointmentShow, edit as appointmentEdit, create as appointmentCreate } from '@/routes/appointments';
+import { Appointment } from '@/types/appointment';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { Patient } from '@/types/patient';
@@ -56,9 +58,10 @@ const InfoCard = ({ title, value, className = '' }: InfoCardProps) => (
 
 interface ShowProps {
     patient: Patient;
+    appointments?: Appointment[];
 }
 
-export default function Show({ patient }: ShowProps) {
+export default function Show({ patient, appointments = [] }: ShowProps) {
     const fullName = `${patient.first_name} ${patient.last_name}`;
     const age = patient.date_of_birth ? getAge(patient.date_of_birth) : 'N/A';
 
@@ -150,11 +153,51 @@ export default function Show({ patient }: ShowProps) {
                 <Card>
                     <div className="bg-gray-50 px-4 py-3 border-b flex justify-between items-center">
                         <h3 className="font-medium">Appointments</h3>
-                        <Button size="sm" variant="outline">+ Schedule</Button>
+                        <Link href={appointmentCreate.url({ query: { patient_id: patient.id } })}>
+                            <Button size="sm" variant="outline">+ Schedule</Button>
+                        </Link>
                     </div>
 
-                    <CardContent className="p-6 text-center text-gray-500">
-                        No upcoming appointments.
+                    <CardContent>
+                        {appointments && appointments.length > 0 ? (
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full text-left">
+                                    <thead>
+                                        <tr>
+                                            <th className="px-4 py-2">Date</th>
+                                            <th className="px-4 py-2">Time</th>
+                                            <th className="px-4 py-2">Doctor</th>
+                                            <th className="px-4 py-2">Status</th>
+                                            <th className="px-4 py-2 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {appointments.map((a) => (
+                                            <tr key={a.id} className="border-t">
+                                                <td className="px-4 py-2">{new Date(a.appointment_date).toLocaleDateString()}</td>
+                                                <td className="px-4 py-2">{a.appointment_time}</td>
+                                                <td className="px-4 py-2">{a.doctor?.name || '-'}</td>
+                                                <td className="px-4 py-2">
+                                                    <span className={`px-2 py-1 text-xs rounded-full ${a.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : a.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                        {a.status.replace('_', ' ')}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-2 text-right space-x-2">
+                                                    <Link href={appointmentShow(a.id).url}>
+                                                        <Button variant="ghost" size="icon">View</Button>
+                                                    </Link>
+                                                    <Link href={appointmentEdit(a.id).url}>
+                                                        <Button variant="ghost" size="icon">Edit</Button>
+                                                    </Link>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <CardContent className="p-6 text-center text-gray-500">No upcoming appointments.</CardContent>
+                        )}
                     </CardContent>
                 </Card>
             </div>

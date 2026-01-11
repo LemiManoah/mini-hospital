@@ -3,6 +3,7 @@ export interface Address {
     district: string;
     city?: string;
     county?: string;
+    display_name?: string;
     created_at: string;
     updated_at: string;
 }

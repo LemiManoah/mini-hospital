@@ -31,6 +31,16 @@ class UserSeeder extends Seeder
                 'role' => 'doctor',
             ],
             [
+                'name' => 'Dr. Jane Smith',
+                'email' => 'doctor2@gmail.com',
+                'role' => 'doctor',
+            ],
+            [
+                'name' => 'Dr. Jane Smith',
+                'email' => 'doctor2@gmail.com',
+                'role' => 'doctor',
+            ],
+            [
                 'name' => 'Receptionist',
                 'email' => 'receptionist@gmail.com',
                 'role' => 'receptionist',

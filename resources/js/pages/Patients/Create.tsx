@@ -9,7 +9,6 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import { FormEvent } from 'react';
-import { route } from '@/utils/route';
 import { index as indexRoute } from '@/routes/patients';
 
 const breadcrumbs: BreadcrumbItem[] = [
