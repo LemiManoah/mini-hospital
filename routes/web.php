@@ -23,7 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('patient-categories', PatientCategoryController::class);
     Route::resource('addresses', AddressController::class);
     Route::resource('appointments', AppointmentController::class);
-
+    Route::get('/calendar', [AppointmentController::class, 'calendarView'])->name('appointments.calendar');
 });
 
 require __DIR__.'/settings.php';

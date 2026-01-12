@@ -15,25 +15,37 @@ use App\Http\Requests\UpdateAppointmentRequest;
 
 class AppointmentController extends Controller
 {
-    public function __construct(protected AppointmentService $appointmentService)
-    { 
-    }
+    public function __construct(protected AppointmentService $appointmentService) {}
     public function index(Request $request)
     {
-        $search = $request->get('search');
+        $filters = $request->only(['search', 'from', 'to', 'doctor_id', 'patient_id']);
 
-        if (!empty($search)) {
-            $appointments = $this->appointmentService->searchAppointments($search);
+        // If any filter is provided, use the search method to apply filters
+        $hasFilters = array_filter($filters, fn($v) => !is_null($v) && $v !== '');
+
+        if (!empty($hasFilters)) {
+            $appointments = $this->appointmentService->searchAppointments($filters);
         } else {
             $appointments = $this->appointmentService->getAllAppointments();
         }
 
+        // Provide lists of doctors and patients for filters
+        $doctors = User::role('doctor')->select('id', 'name')->orderBy('name')->get();
+
+        $patients = Patient::select('id', 'first_name', 'last_name')
+            ->orderBy('first_name')
+            ->get()
+            ->map(fn($p) => [
+                'id' => $p->id,
+                'name' => "{$p->first_name} {$p->last_name}",
+            ]);
+
         return Inertia::render('Appointments/Index', [
             'appointments' => $appointments,
-            'filters' => [
-                'search' => $search,
-            ],
+            'filters' => $filters,
             'statuses' => AppointmentStatus::options(),
+            'doctors' => $doctors,
+            'patients' => $patients,
         ]);
     }
 
@@ -112,5 +124,28 @@ class AppointmentController extends Controller
 
         return back()->with('success', 'Appointment cancelled');
     }
-}
 
+    public function calendar()
+    {
+        $appointments = Appointment::with(['patient', 'doctor'])->get();
+
+        return response()->json(
+            $appointments->map(fn($appointment) => [
+                'id' => $appointment->id,
+                'title' => $appointment->patient->first_name . ' ' . $appointment->patient->last_name,
+                'start' => $appointment->appointment_date . 'T' . $appointment->appointment_time,
+                'status' => $appointment->status,
+            ])
+        );
+    }
+    public function calendarView()
+    {
+        return Inertia::render('Appointments/Calendar', [
+            'events' => Appointment::with('patient')->get()->map(fn($a) => [
+                'id' => $a->id,
+                'title' => $a->patient->first_name . ' ' . $a->patient->last_name,
+                'start' => $a->appointment_date . 'T' . $a->appointment_time,
+            ]),
+        ]);
+    }
+}

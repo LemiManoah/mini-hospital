@@ -41,6 +41,11 @@ const mainNavItems: NavItem[] = [
         title: 'Appointments',
         href: '/appointments',
         icon: Folder,
+    },
+    {
+        title: 'Calendar',
+        href: '/calendar',
+        icon: BookOpen,
     }
 ];
 

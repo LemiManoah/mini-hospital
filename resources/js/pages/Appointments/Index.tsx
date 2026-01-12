@@ -39,16 +39,24 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function AppointmentIndex({
     appointments,
     filters,
+    doctors = [],
+    patients = [],
 }: {
     appointments: PaginatedAppointments;
-    filters: { search?: string };
+    filters: { search?: string; from?: string; to?: string; doctor_id?: string; patient_id?: string };
+    doctors?: Array<{ id: number; name: string }>;
+    patients?: Array<{ id: number; name: string }>;
 }) {
     const [search, setSearch] = useState(filters.search || '');
+    const [from, setFrom] = useState(filters.from || '');
+    const [to, setTo] = useState(filters.to || '');
+    const [doctorId, setDoctorId] = useState(filters.doctor_id || '');
+    const [patientId, setPatientId] = useState(filters.patient_id || '');
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         router.get(
-            index.url({ query: { search } }),
+            index.url({ query: { search, from, to, doctor_id: doctorId, patient_id: patientId } }),
             {},
             { preserveState: true, replace: true }
         );
@@ -56,6 +64,10 @@ export default function AppointmentIndex({
 
     const handleClear = () => {
         setSearch('');
+        setFrom('');
+        setTo('');
+        setDoctorId('');
+        setPatientId('');
         router.get(index.url({ query: {} }), {}, { preserveState: true, replace: true });
     };
 
@@ -78,24 +90,81 @@ export default function AppointmentIndex({
             </div>
 
             <div className="m-2 overflow-x-auto rounded border p-4">
-                {/* Search */}
-                <form onSubmit={handleSearch} className="mb-4 flex gap-2">
-                    <Input
-                        placeholder="Search by patient or doctor..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="max-w-md"
-                    />
-                    <div className="flex gap-2">
-                        <Button type="submit" variant="outline">
-                            <Search className="h-4 w-4 mr-2" />
-                            Search
-                        </Button>
-                        {search && (
-                            <Button type="button" variant="ghost" onClick={handleClear}>
-                                Clear
+                {/* Filters (card) */}
+                <form onSubmit={handleSearch} className="mb-4">
+                    <div className="mb-3 rounded-md bg-gray-50 p-4 shadow-sm">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-500">From</label>
+                                <Input
+                                    type="date"
+                                    value={from}
+                                    onChange={(e) => setFrom(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-500">To</label>
+                                <Input
+                                    type="date"
+                                    value={to}
+                                    onChange={(e) => setTo(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-500">Doctor</label>
+                                <select
+                                    className="w-full rounded border px-2 py-1"
+                                    value={doctorId}
+                                    onChange={(e) => setDoctorId(e.target.value)}
+                                >
+                                    <option value="">All</option>
+                                    {doctors.map((d) => (
+                                        <option key={d.id} value={d.id}>{d.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-500">Patient</label>
+                                <select
+                                    className="w-full rounded border px-2 py-1"
+                                    value={patientId}
+                                    onChange={(e) => setPatientId(e.target.value)}
+                                >
+                                    <option value="">All</option>
+                                    {patients.map((p) => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Search row */}
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                        <div className="flex items-center gap-2 w-full md:max-w-2xl">
+                            <Input
+                                placeholder="Search by patient or doctor..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full"
+                            />
+
+                            <Button type="submit" variant="outline" className="whitespace-nowrap">
+                                <Search className="h-4 w-4 mr-2" />
+                                Search
                             </Button>
-                        )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            {(search || from || to || doctorId || patientId) && (
+                                <Button type="button" variant="ghost" onClick={handleClear}>
+                                    Clear
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </form>
 

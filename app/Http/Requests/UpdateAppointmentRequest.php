@@ -25,10 +25,19 @@ class UpdateAppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'patient_id' => ['sometimes', 'required', 'exists:patients,id'],
+            'doctor_id' => ['sometimes', 'required', 'exists:users,id'],
             'appointment_date' => ['required', 'date'],
-            'appointment_time' => ['required'],
+            'appointment_time' => ['required', 'date_format:H:i'],
             'status' => ['required', new Enum(AppointmentStatus::class)],
             'notes' => ['nullable', 'string'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'appointment_time.date_format' => 'Appointment time must be in HH:MM format.',
         ];
     }
 }

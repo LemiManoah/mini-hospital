@@ -41,12 +41,18 @@ class AppointmentService
     public function updateAppointment(string $id, array $data): Appointment
     {
         $appointment = $this->getAppointmentById($id);
+
+        $doctorId = $data['doctor_id'] ?? $appointment->doctor_id;
+        $appointmentDate = $data['appointment_date'] ?? $appointment->appointment_date;
+        $appointmentTime = $data['appointment_time'] ?? $appointment->appointment_time;
+
         $this->ensureDoctorIsAvailable->execute(
-            $data['doctor_id'],
-            $data['appointment_date'],
-            $data['appointment_time'],
+            $doctorId,
+            $appointmentDate,
+            $appointmentTime,
             $appointment->id
         );
+
         $appointment->update($data);
 
         return $appointment->fresh(['patient', 'doctor']);
@@ -62,17 +68,46 @@ class AppointmentService
         Appointment::withTrashed()->findOrFail($id)->restore();
     }
 
-    public function searchAppointments(string $term): LengthAwarePaginator
+    public function searchAppointments(array $filters): LengthAwarePaginator
     {
-        return Appointment::where(function ($query) use ($term) {
-            $query->where('appointment_date', 'like', "%{$term}%")
-                ->orWhere('status', 'like', "%{$term}%")
-                ->orWhere('doctor_id', 'like', "%{$term}%")
-                ->orWhere('appointment_time', 'like', "%{$term}%");
-        })
-            ->with(['patient', 'doctor'])
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+        $query = Appointment::with(['patient', 'doctor'])->latest();
+
+        if (!empty($filters['search'] ?? null)) {
+            $term = $filters['search'];
+
+            $query->where(function ($q) use ($term) {
+                $q->where('appointment_date', 'like', "%{$term}%")
+                    ->orWhere('appointment_time', 'like', "%{$term}%")
+                    ->orWhere('status', 'like', "%{$term}%")
+                    ->orWhere('doctor_id', 'like', "%{$term}%")
+                    ->orWhereHas('doctor', fn($dq) => $dq->where('name', 'like', "%{$term}%"));
+
+                // Use DB driver-aware concatenation for patient full name (SQLite uses ||)
+                $driver = DB::getDriverName();
+                $concatExpr = in_array($driver, ['sqlite', 'pgsql'])
+                    ? "first_name || ' ' || last_name"
+                    : "CONCAT(first_name, ' ', last_name)";
+
+                $q->orWhereHas('patient', fn($pq) => $pq->whereRaw("{$concatExpr} LIKE ?", ["%{$term}%"]));
+            });
+        }
+
+        if (!empty($filters['from'] ?? null)) {
+            $query->where('appointment_date', '>=', $filters['from']);
+        }
+
+        if (!empty($filters['to'] ?? null)) {
+            $query->where('appointment_date', '<=', $filters['to']);
+        }
+
+        if (!empty($filters['doctor_id'] ?? null)) {
+            $query->where('doctor_id', $filters['doctor_id']);
+        }
+
+        if (!empty($filters['patient_id'] ?? null)) {
+            $query->where('patient_id', $filters['patient_id']);
+        }
+
+        return $query->paginate(15)->withQueryString();
     }
 }

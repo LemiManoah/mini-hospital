@@ -20,6 +20,9 @@ class DatabaseSeeder extends Seeder
         // Seed initial users and assign roles (admin, doctor, receptionist)
         $this->call(UserSeeder::class);
 
+        // Seed doctor working hours for doctor users
+        $this->call(DoctorWorkingHourSeeder::class);
+
         // Seed countries
         $this->call(CountrySeeder::class);
         // Seed patient categories
