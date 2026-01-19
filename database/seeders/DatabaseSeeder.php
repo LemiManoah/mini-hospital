@@ -34,6 +34,8 @@ class DatabaseSeeder extends Seeder
 
         // Seed appointments (requires patients and doctor users)
         $this->call(AppointmentSeeder::class);
+
+        $this->call(ClinicSeeder::class);
         
     }
 }

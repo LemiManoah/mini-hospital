@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Enums\AppointmentStatus;
+
 
 class Appointment extends Model
 {
@@ -29,7 +31,10 @@ class Appointment extends Model
     {
         return $this->belongsTo(User::class, 'doctor_id');
     }
-
-    
+    protected $casts = [
+        'appointment_date' => 'date',
+        'appointment_time' => 'datetime:H:i:s',
+        'status' => AppointmentStatus::class,
+    ];
 }
 

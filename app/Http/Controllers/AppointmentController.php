@@ -143,7 +143,7 @@ class AppointmentController extends Controller
         return Inertia::render('Appointments/Calendar', [
             'events' => Appointment::with('patient')->get()->map(fn($a) => [
                 'id' => $a->id,
-                'title' => $a->patient->first_name . ' ' . $a->patient->last_name,
+                'title' => $a->patient ? $a->patient->first_name . ' ' . $a->patient->last_name : 'Unknown Patient',
                 'start' => $a->appointment_date . 'T' . $a->appointment_time,
             ]),
         ]);

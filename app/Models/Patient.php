@@ -53,7 +53,7 @@ class Patient extends Model
         'registration_date' => 'date',
         'is_active' => 'boolean',
     ];
-    protected $appends = ['age'];
+    protected $appends = ['age_years', 'age_months'];
 
     public function country()
     {
@@ -86,5 +86,15 @@ class Patient extends Model
         $months = $dob->diffInMonths(now()) % 12;
 
         return "{$years}y {$months}m";
+    }
+
+    public function getAgeYearsAttribute(): string
+    {
+        return Carbon::parse($this->date_of_birth)->age;
+    }
+
+    public function getAgeMonthsAttribute(): string
+    {
+        return Carbon::parse($this->date_of_birth)->diffInMonths(now()) % 12;
     }
 }

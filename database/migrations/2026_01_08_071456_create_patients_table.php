@@ -16,7 +16,9 @@ return new class extends Migration {
 
             $table->string('first_name');
             $table->string('last_name');
-            $table->date('date_of_birth');
+            $table->date('date_of_birth')->nullable();
+            $table->integer('ageYears')->nullable();
+            $table->integer('ageMonths')->nullable();
 
             $table->string('preferred_language')->nullable();
             $table->string('religion')->nullable();
@@ -25,7 +27,7 @@ return new class extends Migration {
             $table->foreignId('address_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('patient_category_id')->nullable()->constrained()->nullOnDelete();
 
-            $table->date('registration_date');
+            $table->date('registration_date')->nullable();
             $table->boolean('is_active')->default(true);
 
             $table->string('gender', 20);

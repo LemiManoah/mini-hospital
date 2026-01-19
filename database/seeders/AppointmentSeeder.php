@@ -33,9 +33,11 @@ class AppointmentSeeder extends Seeder
 
         $created = 0;
 
+        // Track used slots per doctor to avoid conflicts
+        $usedSlots = [];
+        
         foreach ($patientIds as $patientId) {
             $appointmentsToCreate = rand(1, 3);
-
             $attempts = 0;
 
             while ($appointmentsToCreate > 0 && $attempts < 10) {
@@ -45,7 +47,14 @@ class AppointmentSeeder extends Seeder
                 $date = Carbon::now()->addDays(rand(1, 60))->toDateString();
                 $time = $timeSlots[array_rand($timeSlots)];
 
+                // Create unique key for this slot
+                $slotKey = $doctorId . '_' . $date . '_' . $time;
+
                 // ensure unique slot per doctor
+                if (isset($usedSlots[$slotKey])) {
+                    continue;
+                }
+
                 $exists = Appointment::where('doctor_id', $doctorId)
                     ->where('appointment_date', $date)
                     ->where('appointment_time', $time)
@@ -68,6 +77,8 @@ class AppointmentSeeder extends Seeder
                     'notes' => fake()->sentence(10),
                 ]);
 
+                // Mark this slot as used
+                $usedSlots[$slotKey] = true;
                 $created++;
                 $appointmentsToCreate--;
             }
