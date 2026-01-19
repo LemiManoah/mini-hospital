@@ -24,7 +24,6 @@ class ClinicController extends Controller
             $clinics = $this->clinicService->getAllClinics();
         }
 
-        // dd($clinics);
         return Inertia::render('Clinics/Index', [
             'clinics' => $clinics,
             'filters' => [
@@ -60,7 +59,7 @@ class ClinicController extends Controller
     {
         $this->clinicService->updateClinic($id, $request->validated());
 
-        return back()->with('success', 'Clinic updated successfully');
+        return redirect()->route('clinics.index')->with('success', 'Clinic updated successfully');
     }
 
     public function destroy(string $id): RedirectResponse

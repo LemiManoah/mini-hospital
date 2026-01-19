@@ -14,64 +14,57 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard().url,
     },
     {
-        title: 'Addresses',
-        href: '/addresses',
+        title: 'Clinics',
+        href: '/clinics',
     },
     {
-        title: 'Create Address',
+        title: 'Create Clinic',
         href: '#',
     },
 ];
 
-export default function AddressCreate() {
+export default function ClinicCreate() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Address" />
+            <Head title="Create Clinic" />
             <div className="mt-4 mb-4 flex items-center justify-between gap-2 px-4">
-                <h1 className="text-2xl font-bold">Create Address</h1>
-                <Link href="/addresses" className="btn">
+                <h1 className="text-2xl font-bold">Create Clinic</h1>
+                <Link href="/clinics" className="btn">
                     <Button>Back</Button>
                 </Link>
             </div>
 
             <div className="m-2 overflow-x-auto rounded border p-4">
 
-                <Form method="post" action="/addresses">
+                <Form method="post" action="/clinics">
                     <div className="mb-4">
-                        <label className="block mb-2 font-bold" htmlFor="district">
-                            District
+                        <label className="block mb-2 font-bold" htmlFor="name">
+                            Clinic Name
                         </label>
                         <Input
-                            id="district"
-                            name="district"
+                            id="name"
+                            name="name"
                             type="text"
-                            placeholder="Enter district"
+                            placeholder="Enter clinic name"
                             required
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block mb-2 font-bold" htmlFor="city">
-                            City
+                        <label className="block mb-2 font-bold" htmlFor="status">
+                            Status
                         </label>
-                        <Input
-                            id="city"
-                            name="city"
-                            type="text"
-                            placeholder="Enter city"
-                        />
+                        <select
+                            id="status"
+                            name="status"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            defaultValue="active"
+                        >
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
                     </div>
-                    <div className="mb-4">
-                        <label className="block mb-2 font-bold" htmlFor="county">
-                            County
-                        </label>
-                        <Input
-                            id="county"
-                            name="county"
-                            type="text"
-                            placeholder="Enter county"
-                        />
-                    </div>
-                    <Button type="submit">Create Address</Button>
+                    <Button type="submit">Create Clinic</Button>
                 </Form>
             </div>
         </AppLayout>

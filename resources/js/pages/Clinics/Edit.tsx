@@ -7,7 +7,7 @@ import { Head } from '@inertiajs/react';
 import { Form } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
 import { useState } from 'react';
-import { Address } from '@/types/address';
+import { Clinic } from '@/types/clinic';
 
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -16,76 +16,65 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard().url,
     },
     {
-        title: 'Addresses',
-        href: '/addresses',
+        title: 'Clinics',
+        href: '/clinics',
     },
     {
-        title: 'Edit Address',
+        title: 'Edit Clinic',
         href: '#',
     },
 ];
 
-export default function AddressEdit({ address }: { address?: Address }) {
+export default function ClinicEdit({ clinic }: { clinic?: Clinic }) {
 
     const [formData, setFormData] = useState({
-        district: address?.district ?? '',
-        city: address?.city ?? '',
-        county: address?.county ?? '',
+        name: clinic?.name ?? '',
+        status: clinic?.status ?? 'active',
     });
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit Address" />
+            <Head title="Edit Clinic" />
             <div className="mt-4 mb-4 flex items-center justify-between gap-2 px-4">
-                <h1 className="text-2xl font-bold">Edit Address</h1>
-                <Link href="/addresses" className="btn">
+                <h1 className="text-2xl font-bold">Edit Clinic</h1>
+                <Link href="/clinics" className="btn">
                     <Button>Back</Button>
                 </Link>
             </div>
 
             <div className="m-2 overflow-x-auto rounded border p-4">
 
-                <Form method="put" action={`/addresses/${address?.id}`}>
+                <Form method="put" action={`/clinics/${clinic?.id}`}>
                     <div className="mb-4">
-                        <label className="block mb-2 font-bold" htmlFor="district">
-                            District
+                        <label className="block mb-2 font-bold" htmlFor="name">
+                            Clinic Name
                         </label>
                         <Input
-                            id="district"
-                            name="district"
+                            id="name"
+                            name="name"
                             type="text"
-                            placeholder="Enter district"
-                            value={formData.district}
-                            onChange={(e) => setFormData({...formData, district: e.target.value})}
+                            placeholder="Enter clinic name"
+                            value={formData.name}
+                            onChange={(e) => setFormData({...formData, name: e.target.value})}
                             required
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block mb-2 font-bold" htmlFor="city">
-                            City
+                        <label className="block mb-2 font-bold" htmlFor="status">
+                            Status
                         </label>
-                        <Input
-                            id="city"
-                            name="city"
-                            type="text"
-                            placeholder="Enter city"
-                            value={formData.city}
-                            onChange={(e) => setFormData({...formData, city: e.target.value})}
-                        />
+                        <select
+                            id="status"
+                            name="status"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={formData.status}
+                            onChange={(e) => setFormData({...formData, status: e.target.value})}
+                        >
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
                     </div>
-                    <div className="mb-4">
-                        <label className="block mb-2 font-bold" htmlFor="county">
-                            County
-                        </label>
-                        <Input
-                            id="county"
-                            name="county"
-                            type="text"
-                            placeholder="Enter county"
-                            value={formData.county}
-                            onChange={(e) => setFormData({...formData, county: e.target.value})}
-                        />
-                    </div>
-                    <Button type="submit">Update Address</Button>
+                    <Button type="submit">Update Clinic</Button>
                 </Form>
             </div>
         </AppLayout>
