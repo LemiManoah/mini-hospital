@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StaffProfile extends Model
 {
+    use SoftDeletes;
+    
     protected $fillable = [
         'first_name',
         'last_name',
@@ -32,5 +35,10 @@ class StaffProfile extends Model
     public function address()
     {
         return $this->belongsTo(Address::class);
+    }
+
+    public function getDisplayNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
     }
 }

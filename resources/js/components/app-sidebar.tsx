@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, DollarSign, Folder, LayoutGrid, LocateIcon, User2Icon, Shield, MedalIcon } from 'lucide-react';
+import { BookOpen, DollarSign, Folder, LayoutGrid, LocateIcon, User2Icon, Shield, MedalIcon, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -56,6 +56,16 @@ const mainNavItems: NavItem[] = [
         title: 'Clinics',
         href: '/clinics',
         icon: MedalIcon,
+    },
+    {
+        title: 'Staff',
+        href: '/staff-profile',
+        icon: User2Icon,
+    },
+    {
+        title: 'Users',
+        href: '/users',
+        icon: Users,
     }
 ];
 

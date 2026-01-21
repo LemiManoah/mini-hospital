@@ -61,10 +61,10 @@ export default function RoleIndex({
             router.get(index.url({ query: { search } }), {}, { preserveState: true, replace: true });
         };
     
-        const handleClear = () => {
-            setSearch('');
-            router.get(index.url({ query: {} }), {}, { preserveState: true, replace: true });
-        };
+        // const handleClear = () => {
+        //     setSearch('');
+        //     router.get(index.url({ query: {} }), {}, { preserveState: true, replace: true });
+        // };
     
     const handleDelete = useCallback((id: number) => {
         if (confirm('Are you sure you want to delete this role?')) {

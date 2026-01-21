@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
-use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Actions\Users\CreateNewUserWithProfile;
+use App\Http\Controllers\UsersController;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -31,6 +33,7 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();
+        $this->configureRoutes();
     }
 
     /**
@@ -39,7 +42,8 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureActions(): void
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
-        Fortify::createUsersUsing(CreateNewUser::class);
+        // Use our custom action that creates user + staff profile
+        Fortify::createUsersUsing(CreateNewUserWithProfile::class);
     }
 
     /**
@@ -86,6 +90,27 @@ class FortifyServiceProvider extends ServiceProvider
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
+        });
+    }
+
+    /**
+     * Configure custom routes.
+     */
+    private function configureRoutes(): void
+    {
+        Route::middleware(['web', 'guest'])->group(function () {
+            Route::get('/register', [UsersController::class, 'create'])->name('register');
+            Route::post('/register', [UsersController::class, 'store'])->name('register.store');
+        });
+
+        Route::middleware(['web', 'auth'])->group(function () {
+            // Admin user management routes
+            Route::get('/users/create', [UsersController::class, 'create'])->name('users.create');
+            Route::post('/users', [UsersController::class, 'store'])->name('users.store');
+            Route::get('/users', [UsersController::class, 'index'])->name('users.index');
+            Route::get('/users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
+            Route::put('/users/{user}', [UsersController::class, 'update'])->name('users.update');
+            Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
         });
     }
 }

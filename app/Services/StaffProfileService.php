@@ -14,12 +14,12 @@ class StaffProfileService
     }
     public function getAllStaffProfiles()
     {
-        return StaffProfile::paginate(10);
+        return StaffProfile::with(['user', 'clinic', 'address'])->paginate(10);
     }
 
     public function getStaffProfileById($id)
     {
-        return StaffProfile::find($id);
+        return StaffProfile::with(['user', 'clinic', 'address'])->find($id);
     }
 
     public function createStaffProfile(array $data): StaffProfile

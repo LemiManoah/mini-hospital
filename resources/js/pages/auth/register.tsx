@@ -19,7 +19,7 @@ export default function Register() {
             <Head title="Register" />
             <Form
                 {...store.form()}
-                resetOnSuccess={['password', 'password_confirmation']}
+                resetOnSuccess={['password', 'password_confirmation', 'gender', 'phone_number']}
                 disableWhileProcessing
                 className="flex flex-col gap-6"
             >
@@ -87,23 +87,69 @@ export default function Register() {
                                 />
                                 <InputError
                                     message={errors.password_confirmation}
+                                    className="mt-2"
                                 />
                             </div>
 
-                            <Button
-                                type="submit"
-                                className="mt-2 w-full"
-                                tabIndex={5}
-                                data-test="register-user-button"
-                            >
-                                {processing && <Spinner />}
-                                Create account
-                            </Button>
+                            <div className="grid gap-2">
+                                <Label htmlFor="gender">Gender</Label>
+                                <select
+                                    id="gender"
+                                    name="gender"
+                                    tabIndex={5}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <InputError message={errors.gender} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="phone_number">Phone Number</Label>
+                                <Input
+                                    id="phone_number"
+                                    type="tel"
+                                    tabIndex={6}
+                                    autoComplete="tel"
+                                    name="phone_number"
+                                    placeholder="Enter phone number"
+                                />
+                                <InputError message={errors.phone_number} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="role">Role (Optional)</Label>
+                                <select
+                                    id="role"
+                                    name="role"
+                                    tabIndex={7}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">Select role</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="doctor">Doctor</option>
+                                    <option value="receptionist">Receptionist</option>
+                                </select>
+                                <InputError message={errors.role} />
+                            </div>
                         </div>
+
+                        <Button
+                            type="submit"
+                            className="mt-2 w-full"
+                            tabIndex={8}
+                            data-test="register-user-button"
+                        >
+                            {processing && <Spinner />}
+                            Create account
+                        </Button>
 
                         <div className="text-center text-sm text-muted-foreground">
                             Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
+                            <TextLink href={login()} tabIndex={9}>
                                 Log in
                             </TextLink>
                         </div>

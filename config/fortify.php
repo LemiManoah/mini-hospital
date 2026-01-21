@@ -144,7 +144,7 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        Features::registration(), // Re-enabled - using our custom CreateNewUserWithProfile action
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([

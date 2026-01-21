@@ -40,22 +40,14 @@ class StaffProfileController extends Controller
             'filters' => [
                 'search' => $search,
             ],
-            'kinRelationships' => EnumsKinRelationship::options(),
             'genders' => EnumsGender::options(),
-            'maritalStatuses' => EnumsMaritalStatus::options(),
-            'religions' => EnumsReligions::options(),
         ]);
     }
 
     public function create()
     {
         $countries = Country::select('id', 'name')->orderBy('name')->get();
-
-        $patientCategories = PatientCategory::select('id', 'name')
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get();
-
+        $clinics = \App\Models\Clinic::select('id', 'name')->orderBy('name')->get();
         $addresses = Address::select('id', 'district', 'city', 'county')
             ->orderBy('district')
             ->orderBy('city')
@@ -66,14 +58,9 @@ class StaffProfileController extends Controller
             ]);
 
         return Inertia::render('StaffProfile/Create', [
-            'patientCategories' => $patientCategories,
+            'clinics' => $clinics,
             'addresses' => $addresses,
             'countries' => $countries,
-            'registrationDate' => now()->format('Y-m-d'),
-            'kinRelationships' => EnumsKinRelationship::options(),
-            'genders' => EnumsGender::options(),
-            'maritalStatuses' => EnumsMaritalStatus::options(),
-            'religions' => EnumsReligions::options(),
         ]);
     }
 
@@ -120,10 +107,6 @@ class StaffProfileController extends Controller
         return Inertia::render('StaffProfile/Show', [
             'staffProfile' => $staffProfile,
             'appointments' => $staffProfile->appointments,
-            'kinRelationships' => EnumsKinRelationship::options(),
-            'genders' => EnumsGender::options(),
-            'maritalStatuses' => EnumsMaritalStatus::options(),
-            'religions' => EnumsReligions::options(),
         ]);
     }
 
@@ -131,7 +114,7 @@ class StaffProfileController extends Controller
     {
         $staffProfile = $this->staffProfileService->getStaffProfileById($id);
         $countries = Country::select('id', 'name')->orderBy('name')->get();
-
+        $clinics = \App\Models\Clinic::select('id', 'name')->orderBy('name')->get();
         $addresses = Address::select('id', 'district', 'city', 'county')
             ->orderBy('district')
             ->orderBy('city')
@@ -142,6 +125,7 @@ class StaffProfileController extends Controller
             ]);
 
         return Inertia::render('StaffProfile/Edit', [
+            'clinics' => $clinics,
             'countries' => $countries,
             'addresses' => $addresses,
             'staffProfile' => $staffProfile,

@@ -9,6 +9,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\PatientCategoryController;
 use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\ClinicController;
+use App\Http\Controllers\StaffProfileController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -28,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/calendar', [AppointmentController::class, 'calendarView'])->name('appointments.calendar');
     Route::resource('roles', RoleController::class);
     Route::resource('clinics', ClinicController::class);
+    Route::resource('staff-profile', StaffProfileController::class);
 });
 
 require __DIR__.'/settings.php';
