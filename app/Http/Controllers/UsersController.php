@@ -5,14 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Clinic;
+use App\Models\Address;
+use App\Enums\EnumsGender;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\ClinicService;
 use App\Services\AddressService;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Auth\Events\Registered;
+use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\DeleteUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Validation\Rules\Password;
@@ -54,35 +59,34 @@ class UsersController extends Controller
      */
     public function create(): Response
     {
-        $addresses = $this->addressService->getAllAddresses();
-        $clinics = $this->clinicService->getAllClinics();
+        $genders = EnumsGender::options();
+        $roles = Role::all();
+        $addresses = Address::all()->map(fn($address) => [
+            'id' => $address->id,
+            'display_name' => $address->display_name,
+        ]);
+        $clinics = Clinic::all();
         return Inertia::render('Users/Create', [
+            'roles' => $roles,
             'addresses' => $addresses,
             'clinics' => $clinics,
+            'genders' => $genders,
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(CreateUserRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Password::defaults()],
-            'role' => ['nullable', 'string', 'exists:roles,name'],
-            'gender' => ['nullable', 'string', 'in:male,female,other'],
-            'phone_number' => ['nullable', 'string', 'max:20'],
-        ]);
+        $validated = $request->validated();
 
         $user = $this->userService->createUser($validated);
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect()->route('dashboard')
+        // dd('User created', $user);
+        return redirect()->route('users.index')
             ->with('success', 'User and staff profile created successfully.');
     }
 

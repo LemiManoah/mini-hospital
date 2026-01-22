@@ -4,6 +4,7 @@ namespace App\Actions\Users;
 
 use App\Models\User;
 use App\Models\StaffProfile;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -26,6 +27,8 @@ class CreateNewUserWithProfile implements CreatesNewUsers
             'alternative_phone_number' => ['nullable', 'string', 'max:20'],
             'clinic_id' => ['nullable', 'integer', 'exists:clinics,id'],
             'address_id' => ['nullable', 'integer', 'exists:addresses,id'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['nullable', 'integer', 'exists:roles,id'],
         ])->validate();
 
         // Create the user first
@@ -49,9 +52,10 @@ class CreateNewUserWithProfile implements CreatesNewUsers
             'user_id' => $user->id,
         ]);
 
-        // Assign role if provided
-        if (isset($input['role'])) {
-            $user->assignRole($input['role']);
+        // Assign roles if provided
+        if (isset($input['roles']) && !empty($input['roles'])) {
+            $roles = Role::whereIn('id', $input['roles'])->pluck('name');
+            $user->syncRoles($roles);
         }
 
         return $user;

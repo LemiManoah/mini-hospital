@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { Search, Edit, Trash2, Eye } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useState } from 'react';
 // import { route } from '@/utils/route'; 
 import { create, edit, destroy, show, index } from '@/routes/patients';
@@ -108,22 +108,21 @@ export default function PatientIndex({ patients, filters }: { patients: Paginate
                                         </TableCell>
                                         <TableCell className="text-right space-x-2">
                                             <Link href={show(patient.id).url}>
-                                                <Button variant="ghost" size="icon">
-                                                    <Eye className="h-4 w-4" />
+                                                <Button variant="outline" size="sm">
+                                                    Select
                                                 </Button>
                                             </Link>
                                             <Link href={edit(patient.id).url}>
-                                                <Button variant="ghost" size="icon">
-                                                    <Edit className="h-4 w-4" />
+                                                <Button variant="outline" size="sm">
+                                                    Edit
                                                 </Button>
                                             </Link>
                                             <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="text-red-600 hover:text-red-800"
+                                                variant="destructive"
+                                                size="sm"
                                                 onClick={() => handleDelete(patient.id)}
                                             >
-                                                <Trash2 className="h-4 w-4" />
+                                                Delete
                                             </Button>
                                         </TableCell>
                                     </TableRow>

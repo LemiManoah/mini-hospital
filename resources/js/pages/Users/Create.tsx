@@ -8,6 +8,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
@@ -15,6 +16,9 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import { FormEvent } from 'react';
 import { index as usersIndexRoute } from '@/routes/users';
+// import { SelectGroup } from '@/components/ui/select';
+import { Role } from '@/types/roles';
+
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: dashboard().url },
@@ -25,13 +29,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 type Option = {
     value: string;
     label: string;
+    disabled?: boolean;
+    name?: string;
 };
 
 type Props = {
     clinics: Array<{ id: number; name: string }>;
     addresses: Array<{ id: number; display_name: string }>;
     genders: Option[];
-    roles: Option[];
+    roles: Role[];
 };
 
 export default function UserCreate({
@@ -50,8 +56,15 @@ export default function UserCreate({
         alternative_phone_number: '',
         clinic_id: '',
         address_id: '',
-        role: '',
+        roles: [] as string[],
     });
+
+    const handleRoleChange = (roleId: string, isChecked: boolean) => {
+        const updatedRoles = isChecked
+            ? [...data.roles, roleId]
+            : data.roles.filter((r) => r !== roleId);
+        setData('roles', updatedRoles);
+    };
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -148,28 +161,33 @@ export default function UserCreate({
                         </div>
 
                         {/* Role */}
-                        <div className="space-y-2">
-                            <Label htmlFor="role">Role (Optional)</Label>
-                            <Select
-                                value={data.role}
-                                onValueChange={(value) => setData('role', value)}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select role" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {roles.map((role) => (
-                                        <SelectItem
-                                            key={role.value}
-                                            value={role.value}
-                                        >
-                                            {role.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {errors.role && (
-                                <p className="text-sm text-red-500">{errors.role}</p>
+                        <div className="space-y-3">
+                            <Label>Roles</Label>
+                            <div className="space-y-2 border rounded p-3 bg-slate-50">
+                                {roles.length > 0 ? (
+                                    roles.map((role) => (
+                                        <div key={role.id} className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id={`role-${role.id}`}
+                                                checked={data.roles.includes(String(role.id))}
+                                                onCheckedChange={(isChecked) =>
+                                                    handleRoleChange(String(role.id), isChecked as boolean)
+                                                }
+                                            />
+                                            <Label
+                                                htmlFor={`role-${role.id}`}
+                                                className="font-normal cursor-pointer"
+                                            >
+                                                {role.name}
+                                            </Label>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-gray-500">No roles available</p>
+                                )}
+                            </div>
+                            {errors.roles && (
+                                <p className="text-sm text-red-500">{errors.roles}</p>
                             )}
                         </div>
                     </div>
@@ -263,7 +281,7 @@ export default function UserCreate({
 
                             {/* Address */}
                             <div className="space-y-2">
-                                <Label htmlFor="address_id">Address (Optional)</Label>
+                                <Label htmlFor="address_id">Address</Label>
                                 <Select
                                     value={data.address_id}
                                     onValueChange={(value) => setData('address_id', value)}
