@@ -22,6 +22,20 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+export interface MainNavItems {
+    title: string;
+    icon?: LucideIcon | null;
+    isActive?: boolean;
+    subItems?: SubItems[];
+}
+
+export interface SubItems {
+    title: string;
+    href: string;
+    icon?: LucideIcon | null;
+    isActive?: boolean;
+}
+
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };

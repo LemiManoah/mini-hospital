@@ -11,66 +11,107 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { type NavItem } from '@/types';
+import { type MainNavItems, NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, DollarSign, Folder, LayoutGrid, LocateIcon, User2Icon, Shield, MedalIcon, Users } from 'lucide-react';
+import { BookOpen, DollarSign, Folder, LayoutGrid, LocateIcon, User2Icon, Shield, MedalIcon, Users, Settings } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
+const mainNavItems: MainNavItems[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
         icon: LayoutGrid,
+        subItems: [
+            {
+                title: 'Overview',
+                href: dashboard().url,
+                icon: LayoutGrid,
+            },
+        ],
+
     },
     {
-        title: 'Addresses',
-        href: '/addresses',
-        icon: LocateIcon,
-    },
-    {
-        title: 'Patient Categories',
-        href: '/patient-categories',
-        icon: DollarSign,
-    },
-    {
-        title: 'Patients',
-        href: '/patients',
-        icon: User2Icon,
-    },
-    {
-        title: 'Appointments',
-        href: '/appointments',
+        title: 'OutPatient',
         icon: Folder,
+        subItems: [
+            {
+                title: 'New Patient',
+                href: '/patients/create',
+                icon: User2Icon,
+            },
+            {
+                title: 'All Patients',
+                href: '/patients',
+                icon: User2Icon,
+            },
+            {
+                title: 'Appointments',
+                href: '/appointments',
+                icon: Folder,
+            },
+            {
+                title: 'Calendar',
+                href: '/calendar',
+                icon: BookOpen,
+            },
+        ],
     },
     {
-        title: 'Calendar',
-        href: '/calendar',
-        icon: BookOpen,
+        title: 'Manage Settings',
+        icon: Settings,
+        subItems: [
+            {
+                title: 'General',
+                href: '/settings',
+                icon: Settings,
+            },
+            {
+                title: 'Services',
+                href: '/services',
+                icon: BookOpen,
+            },
+            {
+                title: 'Clinics',
+                href: '/clinics',
+                icon: MedalIcon,
+            },
+            {
+                title: 'Billing Types',
+                href: '/patient-categories',
+                icon: DollarSign,
+            },
+            {
+                title: 'Addresses',
+                href: '/addresses',
+                icon: LocateIcon,
+            },
+        ],
     },
     {
-        title: 'Roles',
-        href: '/roles',
-        icon: Shield,
-    },
-    {
-        title: 'Clinics',
-        href: '/clinics',
-        icon: MedalIcon,
-    },
-    {
-        title: 'Staff',
-        href: '/staff-profile',
-        icon: User2Icon,
-    },
-    {
-        title: 'Users',
-        href: '/users',
+        title: 'User Management',
         icon: Users,
-    }
+        subItems: [
+            {
+                title: 'Users',
+                href: '/users',
+                icon: Users,
+            },
+            {
+                title: 'Roles',
+                href: '/roles',
+                icon: Shield,
+            },
+            {
+                title: 'Profiles',
+                href: '/profiles',
+                icon: User2Icon,
+            }
+        ],
+    },
+
 ];
 
 const footerNavItems: NavItem[] = [
-    
+
 ];
 
 export function AppSidebar() {

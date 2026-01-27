@@ -1,15 +1,17 @@
 <?php
 
+use App\Http\Controllers\AddressController;
+use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\ClinicController;
+use App\Http\Controllers\PatientCategoryController;
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ServiceTypeController;
+use App\Http\Controllers\Settings\RoleController;
+use App\Http\Controllers\StaffProfileController;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AddressController;
-use App\Http\Controllers\PatientController;
-use App\Http\Controllers\AppointmentController;
-use App\Http\Controllers\PatientCategoryController;
-use App\Http\Controllers\Settings\RoleController;
-use App\Http\Controllers\ClinicController;
-use App\Http\Controllers\StaffProfileController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -30,6 +32,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('clinics', ClinicController::class);
     Route::resource('staff-profile', StaffProfileController::class);
+    Route::resource('services', ServiceController::class);
+    Route::resource('service-types', ServiceTypeController::class);
 });
 
 require __DIR__.'/settings.php';
