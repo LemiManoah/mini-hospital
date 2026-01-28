@@ -1,6 +1,7 @@
 import { Country } from "./country";
 import { Address } from "./address";
 import { PatientCategory } from "./patient-category";
+import { Allergy } from "./allergy";
 
 export interface Patient {
     id: number;
@@ -28,6 +29,14 @@ export interface Patient {
     country: Country;
     address: Address;
     patient_category: PatientCategory;
+    allergies: Array<Allergy & {
+        pivot: {
+            notes?: string;
+            diagnosed_date?: string;
+            severity: string;
+            is_active: boolean;
+        };
+    }>;
 }
 
 export interface PaginatedPatients {

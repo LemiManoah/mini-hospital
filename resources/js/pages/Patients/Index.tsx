@@ -87,7 +87,6 @@ export default function PatientIndex({ patients, filters }: { patients: Paginate
                                 <TableHead>Date of Birth</TableHead>
                                 <TableHead>Gender</TableHead>
                                 <TableHead>Category</TableHead>
-                                <TableHead>Status</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -101,11 +100,6 @@ export default function PatientIndex({ patients, filters }: { patients: Paginate
                                         <TableCell>{new Date(patient.date_of_birth).toLocaleDateString()}</TableCell>
                                         <TableCell className="capitalize">{patient.gender}</TableCell>
                                         <TableCell>{patient.patient_category?.name || '-'}</TableCell>
-                                        <TableCell>
-                                            <span className={`px-2 py-1 text-xs rounded-full ${patient.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                                {patient.is_active ? 'Active' : 'Inactive'}
-                                            </span>
-                                        </TableCell>
                                         <TableCell className="text-right space-x-2">
                                             <Link href={show(patient.id).url}>
                                                 <Button variant="outline" size="sm">

@@ -12,7 +12,7 @@ class StorePatientRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; 
+        return true;
     }
 
     public function rules(): array
@@ -28,7 +28,21 @@ class StorePatientRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:100'],
             'last_name'  => ['required', 'string', 'max:100'],
 
-            'date_of_birth' => ['required', 'date', 'before:today'],
+            'date_of_birth' => [
+                'nullable',
+                'date',
+                'before_or_equal:today',
+                'required_without_all:age'
+            ],
+            'age' => [
+                'nullable',
+                'integer',
+                'min:0',
+                'max:150',
+                'required_without:date_of_birth'
+            ],
+
+
 
             'gender' => ['required', new Enum(EnumsGender::class)],
             'marital_status' => ['required', new Enum(EnumsMaritalStatus::class)],
@@ -45,8 +59,6 @@ class StorePatientRequest extends FormRequest
             'phone_number' => ['required', 'string', 'max:20'],
             'alternative_phone_number' => ['nullable', 'string', 'max:20'],
 
-            'phone_owner' => ['required', 'boolean'],
-
             'next_of_kin_name' => ['nullable', 'string', 'max:100'],
             'next_of_kin_number' => ['nullable', 'string', 'max:20'],
             'next_of_kin_relationship' => [
@@ -54,16 +66,19 @@ class StorePatientRequest extends FormRequest
                 new Enum(EnumsKinRelationship::class),
             ],
 
-            'is_active' => ['sometimes', 'boolean'],
         ];
     }
 
-    protected function prepareForValidation(): void
+    public function messages(): array
     {
-        $this->merge([
-            'phone_owner' => filter_var($this->phone_owner, FILTER_VALIDATE_BOOLEAN),
-            'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
-        ]);
+        return [
+
+            'date_of_birth.date' => 'The date of birth must be a valid date.',
+            'date_of_birth.before_or_equal' => 'The date of birth must be a date before or equal to today.',
+            'date_of_birth.required_without_all' => 'The date of birth is required when age is not provided.',
+            'age.required_without' => 'The age is required when date of birth is not provided.',
+
+        ];
     }
 
     // protected function phoneRegixValidation($phone): void

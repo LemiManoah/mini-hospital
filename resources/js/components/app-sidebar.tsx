@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type MainNavItems, NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, DollarSign, Folder, LayoutGrid, LocateIcon, User2Icon, Shield, MedalIcon, Users, Settings } from 'lucide-react';
+import { BookOpen, DollarSign, Folder, LayoutGrid, LocateIcon, User2Icon, Shield, MedalIcon, Users, Settings, AlertTriangle } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: MainNavItems[] = [
@@ -84,6 +84,11 @@ const mainNavItems: MainNavItems[] = [
                 href: '/addresses',
                 icon: LocateIcon,
             },
+            {
+                title: 'Allergies',
+                href: '/allergies',
+                icon: AlertTriangle,
+            }
         ],
     },
     {
@@ -104,7 +109,7 @@ const mainNavItems: MainNavItems[] = [
                 title: 'Profiles',
                 href: '/profiles',
                 icon: User2Icon,
-            }
+            },
         ],
     },
 

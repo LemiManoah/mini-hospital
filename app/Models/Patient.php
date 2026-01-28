@@ -26,6 +26,8 @@ class Patient extends Model
         'first_name',
         'last_name',
         'date_of_birth',
+        'age',
+        'age_unit',
         'gender',
         'marital_status',
         'preferred_language',
@@ -36,11 +38,9 @@ class Patient extends Model
         'registration_date',
         'phone_number',
         'alternative_phone_number',
-        'phone_owner',
         'next_of_kin_name',
         'next_of_kin_number',
         'next_of_kin_relationship',
-        'is_active'
     ];
 
     protected $casts = [
@@ -48,13 +48,9 @@ class Patient extends Model
         'marital_status' => EnumsMaritalStatus::class,
         'next_of_kin_relationship' => EnumsKinRelationship::class,
         'religion' => EnumsReligions::class,
-        'phone_owner' => 'boolean',
         'date_of_birth' => 'date',
         'registration_date' => 'date',
-        'is_active' => 'boolean',
     ];
-    protected $appends = ['age_years', 'age_months'];
-
     public function country()
     {
         return $this->belongsTo(Country::class);
@@ -75,6 +71,21 @@ class Patient extends Model
         return $this->hasMany(Appointment::class);
     }
 
+    public function allergies()
+    {
+        return $this->belongsToMany(Allergy::class)
+            ->withPivot('notes', 'diagnosed_date', 'severity', 'is_active')
+            ->withTimestamps();
+    }
+
+    public function activeAllergies()
+    {
+        return $this->belongsToMany(Allergy::class)
+            ->withPivot('notes', 'diagnosed_date', 'severity', 'is_active')
+            ->wherePivot('is_active', true)
+            ->withTimestamps();
+    }
+
     public function getAgeAttribute(): string
     {
         if (!$this->date_of_birth) {
@@ -86,15 +97,5 @@ class Patient extends Model
         $months = $dob->diffInMonths(now()) % 12;
 
         return "{$years}y {$months}m";
-    }
-
-    public function getAgeYearsAttribute(): string
-    {
-        return Carbon::parse($this->date_of_birth)->age;
-    }
-
-    public function getAgeMonthsAttribute(): string
-    {
-        return Carbon::parse($this->date_of_birth)->diffInMonths(now()) % 12;
     }
 }

@@ -26,7 +26,7 @@ class PatientFactory extends Factory
     {
         $dob = $this->faker->dateTimeBetween('-90 years', '-0 years');
         $dobDate = Carbon::parse($dob)->toDateString();
-       
+
         $genders = array_map(fn($c) => $c->value, EnumsGender::cases());
         $maritals = array_map(fn($c) => $c->value, EnumsMaritalStatus::cases());
         $religions = array_map(fn($c) => $c->value, EnumsReligions::cases());
@@ -47,7 +47,6 @@ class PatientFactory extends Factory
             'country_id' => $countryId,
 
             'registration_date' => $this->faker->dateTimeBetween('-5 years', 'now')->format('Y-m-d'),
-            'is_active' => $this->faker->boolean(90),
 
             'gender' => $this->faker->randomElement($genders),
             'marital_status' => $this->faker->randomElement($maritals),
@@ -61,7 +60,6 @@ class PatientFactory extends Factory
 
             'phone_number' => $this->faker->phoneNumber(),
             'alternative_phone_number' => $this->faker->optional()->phoneNumber(),
-            'phone_owner' => $this->faker->boolean(80),
         ];
     }
 }

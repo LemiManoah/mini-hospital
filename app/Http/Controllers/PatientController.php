@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Address;
+use App\Models\Allergy;
 use App\Models\Country;
 use App\Models\Patient;
 use App\Enums\EnumsGender;
@@ -106,7 +107,7 @@ class PatientController extends Controller
     public function show(string $id)
     {
         $patient = $this->patientService->getPatientById($id);
-        $patient->load(['address', 'appointments' => function($q) {
+        $patient->load(['address', 'allergies', 'appointments' => function($q) {
             $q->with('doctor')
                 ->where('appointment_date', '>=', now()->toDateString())
                 ->orderBy('appointment_date')
@@ -120,6 +121,7 @@ class PatientController extends Controller
         return Inertia::render('Patients/Show', [
             'patient' => $patient,
             'appointments' => $patient->appointments,
+            'allergies' => Allergy::active()->select('id', 'name', 'severity')->orderBy('name')->get(),
             'kinRelationships' => EnumsKinRelationship::options(),
             'genders' => EnumsGender::options(),
             'maritalStatuses' => EnumsMaritalStatus::options(),
@@ -130,6 +132,7 @@ class PatientController extends Controller
     public function edit(string $id)
     {
         $patient = $this->patientService->getPatientById($id);
+        
         $countries = Country::select('id', 'name')->orderBy('name')->get();
 
         $patientCategories = PatientCategory::select('id', 'name')
@@ -177,5 +180,47 @@ class PatientController extends Controller
         $this->patientService->restorePatient($id);
 
         return redirect()->route('patients.index')->with('success', 'Patient restored successfully');
+    }
+
+    public function attachAllergy(Request $request, string $patientId)
+    {
+        $validated = $request->validate([
+            'allergy_id' => 'required|exists:allergies,id',
+            'notes' => 'nullable|string|max:1000',
+            'diagnosed_date' => 'nullable|date',
+            'severity' => 'required|in:mild,moderate,severe',
+        ]);
+
+        $patient = $this->patientService->getPatientById($patientId);
+        $patient->allergies()->attach($validated['allergy_id'], [
+            'notes' => $validated['notes'] ?? null,
+            'diagnosed_date' => $validated['diagnosed_date'] ?? null,
+            'severity' => $validated['severity'],
+        ]);
+
+        return back()->with('success', 'Allergy attached successfully');
+    }
+
+    public function detachAllergy(string $patientId, string $allergyId)
+    {
+        $patient = $this->patientService->getPatientById($patientId);
+        $patient->allergies()->detach($allergyId);
+
+        return back()->with('success', 'Allergy detached successfully');
+    }
+
+    public function updatePatientAllergy(Request $request, string $patientId, string $allergyId)
+    {
+        $validated = $request->validate([
+            'notes' => 'nullable|string|max:1000',
+            'diagnosed_date' => 'nullable|date',
+            'severity' => 'required|in:mild,moderate,severe',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        $patient = $this->patientService->getPatientById($patientId);
+        $patient->allergies()->updateExistingPivot($allergyId, $validated);
+
+        return back()->with('success', 'Patient allergy updated successfully');
     }
 }

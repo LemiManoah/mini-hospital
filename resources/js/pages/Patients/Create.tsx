@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
@@ -68,7 +67,6 @@ export default function PatientCreate({
         next_of_kin_name: '',
         next_of_kin_number: '',
         next_of_kin_relationship: '',
-        is_active: true,
     });
 
     const handleSubmit = (e: FormEvent) => {
@@ -189,11 +187,6 @@ export default function PatientCreate({
                                     </Select>
                                     {errors.religion && <p className="text-sm text-red-500">{errors.religion}</p>}
                                 </div>
-
-                                {/* contact information */}
-                                <div className="space-y-4 col-span-3">
-                            <h2 className="text-lg font-semibold">Contact Information</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="phone_number">Phone Number *</Label>
                                     <Input
@@ -217,24 +210,7 @@ export default function PatientCreate({
                                     />
                                     {errors.alternative_phone_number && <p className="text-sm text-red-500">{errors.alternative_phone_number}</p>}
                                 </div>
-                                <div className="flex items-center space-x-2 pt-8">
-                                    <Checkbox
-                                        id="phone_owner"
-                                        name="phone_owner"
-                                        value="1"
-                                        checked={data.phone_owner}
-                                        onCheckedChange={(checked) => setData('phone_owner', Boolean(checked))}
-                                    />
-                                    <Label htmlFor="phone_owner">Phone belongs to patient</Label>
-                                    {errors.phone_owner && <p className="text-sm text-red-500">{errors.phone_owner}</p>}
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* Address Information */}
-                        <div className="space-y-4 col-span-3">
-                            <h2 className="text-lg font-semibold">Address Information</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="country_id">Country</Label>
                                     <Select name="country_id" value={data.country_id} onValueChange={(value) => setData('country_id', value)}>
@@ -268,7 +244,7 @@ export default function PatientCreate({
                                     {errors.address_id && <p className="text-sm text-red-500">{errors.address_id}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="patient_category_id">Patient Category</Label>
+                                    <Label htmlFor="patient_category_id">Patient Billing Type</Label>
                                     <Select name="patient_category_id" value={data.patient_category_id} onValueChange={(value) => setData('patient_category_id', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select category" />
@@ -283,88 +259,74 @@ export default function PatientCreate({
                                     </Select>
                                     {errors.patient_category_id && <p className="text-sm text-red-500">{errors.patient_category_id}</p>}
                                 </div>
-                            </div>
-                        </div>
 
-                        {/* Next of Kin */}
-                        <div className="space-y-4 col-span-3">
-                            <h2 className="text-lg font-semibold">Next of Kin</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="next_of_kin_name">Name</Label>
-                                    <Input
-                                        id="next_of_kin_name"
-                                        name="next_of_kin_name"
-                                        type="text"
-                                        placeholder="Full name"
-                                        value={data.next_of_kin_name}
-                                        onChange={(e) => setData('next_of_kin_name', e.target.value)}
-                                    />
-                                    {errors.next_of_kin_name && <p className="text-sm text-red-500">{errors.next_of_kin_name}</p>}
+                                {/* Next of Kin */}
+                                <div className="space-y-4 col-span-3">
+                                    <h2 className="text-lg font-semibold">Next of Kin</h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="next_of_kin_name">Name</Label>
+                                            <Input
+                                                id="next_of_kin_name"
+                                                name="next_of_kin_name"
+                                                type="text"
+                                                placeholder="Full name"
+                                                value={data.next_of_kin_name}
+                                                onChange={(e) => setData('next_of_kin_name', e.target.value)}
+                                            />
+                                            {errors.next_of_kin_name && <p className="text-sm text-red-500">{errors.next_of_kin_name}</p>}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="next_of_kin_number">Phone Number</Label>
+                                            <Input
+                                                id="next_of_kin_number"
+                                                name="next_of_kin_number"
+                                                type="tel"
+                                                placeholder="+256 XXX XXX XXX"
+                                                value={data.next_of_kin_number}
+                                                onChange={(e) => setData('next_of_kin_number', e.target.value)}
+                                            />
+                                            {errors.next_of_kin_number && <p className="text-sm text-red-500">{errors.next_of_kin_number}</p>}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="next_of_kin_relationship">Relationship</Label>
+                                            <Select name="next_of_kin_relationship" value={data.next_of_kin_relationship} onValueChange={(value) => setData('next_of_kin_relationship', value)}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select relationship" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {kinRelationships.map((relation) => (
+                                                        <SelectItem key={relation.value} value={relation.value}>
+                                                            {relation.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.next_of_kin_relationship && <p className="text-sm text-red-500">{errors.next_of_kin_relationship}</p>}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="next_of_kin_number">Phone Number</Label>
-                                    <Input
-                                        id="next_of_kin_number"
-                                        name="next_of_kin_number"
-                                        type="tel"
-                                        placeholder="+256 XXX XXX XXX"
-                                        value={data.next_of_kin_number}
-                                        onChange={(e) => setData('next_of_kin_number', e.target.value)}
-                                    />
-                                    {errors.next_of_kin_number && <p className="text-sm text-red-500">{errors.next_of_kin_number}</p>}
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="next_of_kin_relationship">Relationship</Label>
-                                    <Select name="next_of_kin_relationship" value={data.next_of_kin_relationship} onValueChange={(value) => setData('next_of_kin_relationship', value)}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select relationship" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {kinRelationships.map((relation) => (
-                                                <SelectItem key={relation.value} value={relation.value}>
-                                                    {relation.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.next_of_kin_relationship && <p className="text-sm text-red-500">{errors.next_of_kin_relationship}</p>}
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* Registration & Status */}
-                        <div className="space-y-4 col-span-3">
-                            <h2 className="text-lg font-semibold">Registration</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="registration_date">Registration Date *</Label>
-                                    <Input
-                                        id="registration_date"
-                                        name="registration_date"
-                                        type="date"
-                                        required
-                                        value={data.registration_date}
-                                        onChange={(e) => setData('registration_date', e.target.value)}
-                                    />
-                                    {errors.registration_date && <p className="text-sm text-red-500">{errors.registration_date}</p>}
+                                {/* Registration & Status */}
+                                <div className="space-y-4 col-span-3">
+                                    <h2 className="text-lg font-semibold">Registration</h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="registration_date">Registration Date *</Label>
+                                            <Input
+                                                id="registration_date"
+                                                name="registration_date"
+                                                type="date"
+                                                required
+                                                value={data.registration_date}
+                                                onChange={(e) => setData('registration_date', e.target.value)}
+                                            />
+                                            {errors.registration_date && <p className="text-sm text-red-500">{errors.registration_date}</p>}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex items-center space-x-2 pt-8">
-                                    <Checkbox
-                                        id="is_active"
-                                        name="is_active"
-                                        value="1"
-                                        defaultChecked
-                                        checked={data.is_active}
-                                        onCheckedChange={(checked) => setData('is_active', Boolean(checked))}
-                                    />
-                                    <Label htmlFor="is_active">Active</Label>
-                                    {errors.is_active && <p className="text-sm text-red-500">{errors.is_active}</p>}
-                                </div>
-                            </div>
-                        </div>
 
-                                
+
 
                             </div>
                         </div>

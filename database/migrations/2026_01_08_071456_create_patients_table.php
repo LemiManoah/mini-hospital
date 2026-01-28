@@ -17,10 +17,11 @@ return new class extends Migration {
             $table->string('first_name');
             $table->string('last_name');
             $table->date('date_of_birth')->nullable();
-            $table->integer('ageYears')->nullable();
-            $table->integer('ageMonths')->nullable();
+            $table->integer('age')->nullable();
+            $table->enum('age_unit', ['years', 'months', 'days'])->nullable();
 
-            $table->string('preferred_language')->nullable();
+
+            $table->string('preferred_language')->nullable()->default('English');
             $table->string('religion')->nullable();
 
             $table->foreignId('country_id')->nullable()->constrained()->nullOnDelete();
@@ -28,7 +29,6 @@ return new class extends Migration {
             $table->foreignId('patient_category_id')->nullable()->constrained()->nullOnDelete();
 
             $table->date('registration_date')->nullable();
-            $table->boolean('is_active')->default(true);
 
             $table->string('gender', 20);
             $table->string('marital_status', 20);
@@ -39,7 +39,6 @@ return new class extends Migration {
 
             $table->string('phone_number');
             $table->string('alternative_phone_number')->nullable();
-            $table->boolean('phone_owner')->default(true);
 
             $table->softDeletes();
             $table->timestamps();
