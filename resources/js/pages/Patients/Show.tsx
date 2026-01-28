@@ -20,6 +20,7 @@ import {
 import { Patient } from '@/types/patient';
 import { Appointment } from '@/types/appointment';
 import { BreadcrumbItem } from '@/types';
+import StartVisitModal from '@/components/StartVisitModal';
 
 /* -------------------------------------------------------------------------- */
 /* Utils */
@@ -110,7 +111,9 @@ export default function PatientShow({
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                        <Button>Start Visit</Button>
+                        <StartVisitModal patient={patient}>
+                            <Button>Start Visit</Button>
+                        </StartVisitModal>
 
                         <Link
                             href={appointmentCreate.url({
@@ -150,7 +153,22 @@ export default function PatientShow({
                         />
                         <InfoCard
                             title="Last Visit"
-                            value={patient.last_visit_date}
+                            value={
+                                patient.visits?.length > 0
+                                    ? formatDate(
+                                          patient.visits
+                                              .sort(
+                                                  (a, b) =>
+                                                      new Date(
+                                                          b.visit_date
+                                                      ).getTime() -
+                                                      new Date(
+                                                          a.visit_date
+                                                      ).getTime()
+                                              )[0].visit_date
+                                      )
+                                    : 'No visits'
+                            }
                         />
                         <InfoCard
                             title="Registered"

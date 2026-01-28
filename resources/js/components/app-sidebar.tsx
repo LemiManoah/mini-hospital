@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type MainNavItems, NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, DollarSign, Folder, LayoutGrid, LocateIcon, User2Icon, Shield, MedalIcon, Users, Settings, AlertTriangle } from 'lucide-react';
+import { BookOpen, DollarSign, Folder, LayoutGrid, LocateIcon, User2Icon, Shield, MedalIcon, Users, Settings, AlertTriangle, Calendar, BriefcaseMedicalIcon } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: MainNavItems[] = [
@@ -44,15 +44,36 @@ const mainNavItems: MainNavItems[] = [
                 icon: User2Icon,
             },
             {
-                title: 'Appointments',
+                title: 'Active visits',
+                href: '/visits',
+                icon: Folder,
+            },
+        ],
+    },
+    {
+        title: 'Appointments',
+        icon: Folder,
+        subItems: [
+            {
+                title: 'New Appointment',
+                href: '/appointments/create',
+                icon: Folder,
+            },
+            {
+                title: 'All Appointments',
                 href: '/appointments',
                 icon: Folder,
             },
             {
                 title: 'Calendar',
                 href: '/calendar',
-                icon: BookOpen,
+                icon: Calendar,
             },
+            {
+                title: 'Doctor Working Hours',
+                href: '/doctor-working-hours',
+                icon: BriefcaseMedicalIcon,
+            }
         ],
     },
     {

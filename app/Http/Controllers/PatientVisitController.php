@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use App\Services\PatientVisitService;
-use App\Http\Requests\PatientVisitRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Inertia\Inertia;
+use App\Models\VisitStatus;
+use App\Models\PatientVisit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Services\PatientVisitService;
+use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\PatientVisitRequest;
 
 class PatientVisitController extends Controller
 {
@@ -61,10 +64,48 @@ class PatientVisitController extends Controller
 
     public function store(PatientVisitRequest $request): RedirectResponse
     {
-        $this->patientVisitService->createPatientVisit($request->validated());
+        $validated = $request->validated();
+        
+        // Set default values
+        $validated['status_id'] = VisitStatus::where('code', 'REG')->first()->id;
+        $validated['visit_date'] = $validated['visit_date'] ?? now()->toDateString();
+        $validated['visit_time'] = $validated['visit_time'] ?? now()->toTimeString();
+        $validated['created_by_staff_id'] = Auth::id();
+        
+        // Set priority based on visit type
+        $validated['priority_flag'] = $validated['visit_type_id'] === \App\Models\VisitType::where('code', 'EMR')->first()->id ? 'urgent' : 'medium';
+        
+        $visit = $this->patientVisitService->createPatientVisit($validated);
 
         return redirect()
             ->route('patient-visits.index')
+            ->with('success', 'Patient Visit created successfully');
+    }
+
+    public function quickStore(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'visit_type_id' => 'required|exists:visit_types,id',
+            'priority_flag' => 'sometimes|in:low,medium,high,urgent',
+        ]);
+
+        $data = [
+            'patient_id' => $request->patient_id,
+            'visit_type_id' => $request->visit_type_id,
+            'status_id' => VisitStatus::where('code', 'REG')->first()->id,
+            'assigned_clinic_id' => $request->assigned_clinic_id ?? null,
+            'assigned_doctor_id' => $request->assigned_doctor_id ?? null,
+            'created_by_staff_id' => Auth::id(),
+            'visit_date' => now()->toDateString(),
+            'visit_time' => now()->toTimeString(),
+            'priority_flag' => $request->priority_flag ?? 'medium',
+        ];
+
+        $visit = $this->patientVisitService->createPatientVisit($data);
+
+        return redirect()
+            ->route('patient-visits.show', $visit->id)
             ->with('success', 'Patient Visit created successfully');
     }
 

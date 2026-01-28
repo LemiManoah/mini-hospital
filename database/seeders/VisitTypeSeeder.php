@@ -12,13 +12,13 @@ class VisitTypeSeeder extends Seeder
         $visitTypes = [
             [
                 'code' => 'OPD',
-                'name' => 'Outpatient Department',
+                'name' => 'OPD Consultation',
                 'description' => 'Regular outpatient consultation and treatment services',
                 'is_active' => true,
             ],
             [
                 'code' => 'IPD',
-                'name' => 'Inpatient Department',
+                'name' => 'IPD Admission',
                 'description' => 'Admission and hospitalization services for patients requiring overnight stay',
                 'is_active' => true,
             ],
@@ -29,9 +29,9 @@ class VisitTypeSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'code' => 'REV',
-                'name' => 'Review',
-                'description' => 'Follow-up review appointments for ongoing treatment',
+                'code' => 'LAB',
+                'name' => 'Lab Self test',
+                'description' => 'Lab self test services',
                 'is_active' => true,
             ],
             [

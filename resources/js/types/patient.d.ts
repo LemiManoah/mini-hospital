@@ -3,6 +3,7 @@ import { Address } from "./address";
 import { PatientCategory } from "./patient-category";
 import { Allergy } from "./allergy";
 
+
 export interface Patient {
     id: number;
     patient_number: string;
@@ -37,6 +38,7 @@ export interface Patient {
             is_active: boolean;
         };
     }>;
+    visits: patientVisit[];
 }
 
 export interface PaginatedPatients {
@@ -46,4 +48,20 @@ export interface PaginatedPatients {
         label: string;
         active: boolean;
     }>;
+}
+
+interface patientVisit {
+    id: number;
+    visit_number: string;
+    patient_id: number;
+    visit_type: string;
+    status: string;
+    assigned_clinic_id: number;
+    assigned_doctor_id: number;
+    created_by_staff_id: number;
+    visit_date: string;
+    visit_time: string;
+    priority_flag: boolean;
+    created_at: string;
+    updated_at: string;
 }

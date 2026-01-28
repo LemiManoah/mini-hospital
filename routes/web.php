@@ -4,8 +4,10 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClinicController;
+use App\Http\Controllers\DoctorWorkingHourController;
 use App\Http\Controllers\PatientCategoryController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PatientVisitController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceTypeController;
 use App\Http\Controllers\Settings\RoleController;
@@ -39,9 +41,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::resource('roles', RoleController::class);
     Route::resource('clinics', ClinicController::class);
+    Route::resource('doctor-working-hours', DoctorWorkingHourController::class);
     Route::resource('staff-profile', StaffProfileController::class);
     Route::resource('services', ServiceController::class);
     Route::resource('service-types', ServiceTypeController::class);
+
+    Route::post('/visits/quick-create', [PatientVisitController::class, 'quickStore'])
+        ->name('visits.quick-store');
+
+    Route::get('/visits/{visit}', [PatientVisitController::class, 'show'])
+        ->name('visits.show');
+
 });
 
 require __DIR__.'/settings.php';

@@ -98,4 +98,9 @@ class Patient extends Model
 
         return "{$years}y {$months}m";
     }
+
+    public function getNameAttribute(): string
+    {
+        return trim("{$this->first_name} {$this->last_name}");
+    }
 }

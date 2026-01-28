@@ -61,7 +61,8 @@ class PatientVisit extends Model
 
     public function getDisplayNameAttribute(): string
     {
-        return "{$this->visit_number} - {$this->patient->name} - " . $this->visit_date->format('d/m/Y');
+        $patientName = $this->patient?->name ?? 'Unknown Patient';
+        return "{$this->visit_number} - {$patientName} - " . $this->visit_date->format('d/m/Y');
     }
 
     public function getFullVisitDateTimeAttribute(): string
