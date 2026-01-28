@@ -175,8 +175,12 @@ export default function AppointmentIndex({
                             <TableRow>
                                 <TableHead>Date</TableHead>
                                 <TableHead>Time</TableHead>
+                                <TableHead>Duration</TableHead>
                                 <TableHead>Patient</TableHead>
                                 <TableHead>Doctor</TableHead>
+                                <TableHead>Category</TableHead>
+                                <TableHead>Method</TableHead>
+                                <TableHead>Priority</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
@@ -195,6 +199,10 @@ export default function AppointmentIndex({
                                         </TableCell>
 
                                         <TableCell>
+                                            {appointment.duration_minutes ? `${appointment.duration_minutes}m` : '-'}
+                                        </TableCell>
+
+                                        <TableCell>
                                             {appointment.patient
                                                 ? `${appointment.patient.first_name} ${appointment.patient.last_name}`
                                                 : '-'}
@@ -205,10 +213,22 @@ export default function AppointmentIndex({
                                         </TableCell>
 
                                         <TableCell>
+                                            {appointment.category?.name || '-'}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {appointment.method?.name || '-'}
+                                        </TableCell>
+
+                                        <TableCell className="capitalize">
+                                            {appointment.priority_flag || '-'}
+                                        </TableCell>
+
+                                        <TableCell>
                                             <span
                                                 className={`px-2 py-1 text-xs rounded-full capitalize
                                                     ${
-                                                        appointment.status === 'scheduled'
+                                                        ['scheduled', 'confirmed', 'checked_in'].includes(appointment.status)
                                                             ? 'bg-blue-100 text-blue-800'
                                                             : appointment.status === 'completed'
                                                             ? 'bg-green-100 text-green-800'
@@ -246,7 +266,7 @@ export default function AppointmentIndex({
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="text-center py-4">
+                                    <TableCell colSpan={10} className="text-center py-4">
                                         No appointments found.
                                     </TableCell>
                                 </TableRow>

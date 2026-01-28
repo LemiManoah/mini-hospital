@@ -92,10 +92,71 @@ export default function Show({ appointment }: Props) {
                         <div>
                             <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</p>
                             <p className="mt-1">
-                                <Badge variant={appointment.status === 'scheduled' ? 'default' : appointment.status === 'completed' ? 'success' : 'destructive'}>
+                                <Badge
+                                    variant={
+                                        ['scheduled', 'confirmed', 'checked_in'].includes(appointment.status)
+                                            ? 'default'
+                                            : appointment.status === 'completed'
+                                            ? 'success'
+                                            : 'destructive'
+                                    }
+                                >
                                     {appointment.status.replace('_', ' ')}
                                 </Badge>
                             </p>
+                        </div>
+
+                        <div>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</p>
+                            <p className="mt-1 text-sm text-gray-900 capitalize">{appointment.priority_flag || '-'}</p>
+                        </div>
+
+                        <div>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Method</p>
+                            <p className="mt-1 text-sm text-gray-900">{appointment.method?.name || '-'}</p>
+                        </div>
+
+                        <div>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Category</p>
+                            <p className="mt-1 text-sm text-gray-900">{appointment.category?.name || '-'}</p>
+                        </div>
+
+                        <div>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</p>
+                            <p className="mt-1 text-sm text-gray-900">
+                                {appointment.duration_minutes ? `${appointment.duration_minutes} minutes` : '-'}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Clinic</p>
+                            <p className="mt-1 text-sm text-gray-900">{appointment.clinic?.name || '-'}</p>
+                        </div>
+
+                        <div>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Service</p>
+                            <p className="mt-1 text-sm text-gray-900">{appointment.service?.name || '-'}</p>
+                        </div>
+
+                        <div>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Platform</p>
+                            <p className="mt-1 text-sm text-gray-900">{appointment.platform || '-'}</p>
+                        </div>
+
+                        <div>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Virtual Link</p>
+                            {appointment.virtual_link ? (
+                                <a
+                                    href={appointment.virtual_link}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="mt-1 text-sm text-blue-600 hover:underline block"
+                                >
+                                    {appointment.virtual_link}
+                                </a>
+                            ) : (
+                                <p className="mt-1 text-sm text-gray-900">-</p>
+                            )}
                         </div>
 
                         <div>

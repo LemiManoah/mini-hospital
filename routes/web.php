@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AllergyController;
+use App\Http\Controllers\AppointmentCategoryController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\AppointmentMethodController;
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\DoctorWorkingHourController;
 use App\Http\Controllers\PatientCategoryController;
@@ -41,6 +43,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::resource('roles', RoleController::class);
     Route::resource('clinics', ClinicController::class);
+    Route::resource('appointment-methods', AppointmentMethodController::class);
+    Route::resource('appointment-categories', AppointmentCategoryController::class);
     Route::resource('doctor-working-hours', DoctorWorkingHourController::class);
     Route::resource('staff-profile', StaffProfileController::class);
     Route::resource('services', ServiceController::class);

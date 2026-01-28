@@ -31,12 +31,22 @@ type Props = {
     patients: Array<{ id: number; name: string }>;
     doctors: Array<{ id: number; name: string }>;
     statuses: Option[];
+    methods: Array<{ id: number; name: string }>;
+    categories: Array<{ id: number; name: string }>;
+    clinics: Array<{ id: number; name: string }>;
+    services: Array<{ id: number; name: string }>;
+    priorities: Option[];
 };
 
 export default function AppointmentCreate({
     patients = [],
     doctors = [],
     statuses = [],
+    methods = [],
+    categories = [],
+    clinics = [],
+    services = [],
+    priorities = [],
 }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         patient_id: '',
@@ -44,6 +54,14 @@ export default function AppointmentCreate({
         appointment_date: '',
         appointment_time: '',
         status: 'scheduled',
+        appointment_method_id: '',
+        appointment_category_id: '',
+        duration_minutes: '30',
+        clinic_id: '',
+        service_id: '',
+        priority_flag: 'medium',
+        virtual_link: '',
+        platform: '',
         notes: '',
     });
 
@@ -185,6 +203,166 @@ export default function AppointmentCreate({
                                         ))}
                                     </SelectContent>
                                 </Select>
+                            </div>
+
+                            {/* Method */}
+                            <div className="space-y-2">
+                                <Label>Method</Label>
+                                <Select
+                                    value={data.appointment_method_id}
+                                    onValueChange={(value) => setData('appointment_method_id', value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select method" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {methods.map((method) => (
+                                            <SelectItem key={method.id} value={String(method.id)}>
+                                                {method.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.appointment_method_id && (
+                                    <p className="text-sm text-red-500">{errors.appointment_method_id}</p>
+                                )}
+                            </div>
+
+                            {/* Category */}
+                            <div className="space-y-2">
+                                <Label>Category</Label>
+                                <Select
+                                    value={data.appointment_category_id}
+                                    onValueChange={(value) => setData('appointment_category_id', value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {categories.map((category) => (
+                                            <SelectItem key={category.id} value={String(category.id)}>
+                                                {category.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.appointment_category_id && (
+                                    <p className="text-sm text-red-500">{errors.appointment_category_id}</p>
+                                )}
+                            </div>
+
+                            {/* Duration */}
+                            <div className="space-y-2">
+                                <Label htmlFor="duration_minutes">Duration (minutes) *</Label>
+                                <Input
+                                    type="number"
+                                    id="duration_minutes"
+                                    min={5}
+                                    max={480}
+                                    value={data.duration_minutes}
+                                    onChange={(e) => setData('duration_minutes', e.target.value)}
+                                    required
+                                />
+                                {errors.duration_minutes && (
+                                    <p className="text-sm text-red-500">{errors.duration_minutes}</p>
+                                )}
+                            </div>
+
+                            {/* Priority */}
+                            <div className="space-y-2">
+                                <Label>Priority *</Label>
+                                <Select
+                                    value={data.priority_flag}
+                                    onValueChange={(value) => setData('priority_flag', value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select priority" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {priorities.map((priority) => (
+                                            <SelectItem key={priority.value} value={priority.value}>
+                                                {priority.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.priority_flag && (
+                                    <p className="text-sm text-red-500">{errors.priority_flag}</p>
+                                )}
+                            </div>
+
+                            {/* Clinic */}
+                            <div className="space-y-2">
+                                <Label>Clinic</Label>
+                                <Select
+                                    value={data.clinic_id}
+                                    onValueChange={(value) => setData('clinic_id', value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select clinic" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {clinics.map((clinic) => (
+                                            <SelectItem key={clinic.id} value={String(clinic.id)}>
+                                                {clinic.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.clinic_id && (
+                                    <p className="text-sm text-red-500">{errors.clinic_id}</p>
+                                )}
+                            </div>
+
+                            {/* Service */}
+                            <div className="space-y-2">
+                                <Label>Service</Label>
+                                <Select
+                                    value={data.service_id}
+                                    onValueChange={(value) => setData('service_id', value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select service" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {services.map((service) => (
+                                            <SelectItem key={service.id} value={String(service.id)}>
+                                                {service.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.service_id && (
+                                    <p className="text-sm text-red-500">{errors.service_id}</p>
+                                )}
+                            </div>
+
+                            {/* Platform */}
+                            <div className="space-y-2">
+                                <Label htmlFor="platform">Platform</Label>
+                                <Input
+                                    id="platform"
+                                    value={data.platform}
+                                    onChange={(e) => setData('platform', e.target.value)}
+                                    placeholder="e.g. Zoom, WhatsApp, Phone"
+                                />
+                                {errors.platform && (
+                                    <p className="text-sm text-red-500">{errors.platform}</p>
+                                )}
+                            </div>
+
+                            {/* Virtual link */}
+                            <div className="space-y-2">
+                                <Label htmlFor="virtual_link">Virtual Link</Label>
+                                <Input
+                                    id="virtual_link"
+                                    value={data.virtual_link}
+                                    onChange={(e) => setData('virtual_link', e.target.value)}
+                                    placeholder="https://..."
+                                />
+                                {errors.virtual_link && (
+                                    <p className="text-sm text-red-500">{errors.virtual_link}</p>
+                                )}
                             </div>
                         </div>
                     </div>

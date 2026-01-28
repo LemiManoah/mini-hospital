@@ -13,6 +13,7 @@ class EnsureDoctorIsAvailable
         int $doctorId,
         string $date,
         string $time,
+        int $durationMinutes = 30,
         ?int $ignoreAppointmentId = null
     ): void {
         $dayOfWeek = Carbon::parse($date)->dayOfWeek;
@@ -30,27 +31,39 @@ class EnsureDoctorIsAvailable
             ]);
         }
 
-        // Treat end_time as exclusive: appointments must start before end_time
-        if ($time < $workingHour->start_time || $time >= $workingHour->end_time) {
+        $start = Carbon::parse($date . ' ' . $time);
+        $end = $start->copy()->addMinutes($durationMinutes);
+        $workingStart = Carbon::parse($date . ' ' . $workingHour->start_time);
+        $workingEnd = Carbon::parse($date . ' ' . $workingHour->end_time);
+
+        // Treat end_time as exclusive: appointments must end on or before end_time
+        if ($start < $workingStart || $end > $workingEnd) {
             throw ValidationException::withMessages([
                 'appointment_time' => 'Selected time is outside doctor working hours.',
             ]);
         }
 
-        // Existing double-booking check (compare normalized time)
+        // Existing overlap check
         $query = Appointment::where('doctor_id', $doctorId)
             ->where('appointment_date', $date)
-            ->where('appointment_time', $time)
             ->where('status', '!=', 'cancelled');
 
         if ($ignoreAppointmentId !== null) {
             $query->where('id', '!=', $ignoreAppointmentId);
         }
 
-        if ($query->exists()) {
-            throw ValidationException::withMessages([
-                'appointment_time' => 'Doctor already has an appointment at this time.',
-            ]);
+        $existingAppointments = $query->get();
+
+        foreach ($existingAppointments as $appointment) {
+            $existingStart = Carbon::parse($date . ' ' . $appointment->appointment_time);
+            $existingEnd = $existingStart->copy()->addMinutes($appointment->duration_minutes ?? 30);
+
+            if ($start < $existingEnd && $end > $existingStart) {
+                throw ValidationException::withMessages([
+                    'appointment_time' => 'Doctor already has an appointment during this time.',
+                ]);
+            }
         }
+
     }
 }

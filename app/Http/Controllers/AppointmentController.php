@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Patient;
+use App\Models\Clinic;
+use App\Models\Service;
+use App\Models\AppointmentMethod;
+use App\Models\AppointmentCategory;
 use Inertia\Inertia;
 use App\Models\Appointment;
 use Illuminate\Http\Request;
@@ -52,6 +56,10 @@ class AppointmentController extends Controller
     public function create()
     {
         $doctors = User::role('doctor')->select('id', 'name')->get();
+        $methods = AppointmentMethod::active()->select('id', 'name')->orderBy('name')->get();
+        $categories = AppointmentCategory::active()->select('id', 'name')->orderBy('name')->get();
+        $clinics = Clinic::select('id', 'name')->orderBy('name')->get();
+        $services = Service::select('id', 'name')->orderBy('name')->get();
 
         $patients = Patient::select('id', 'first_name', 'last_name')
             ->orderBy('first_name')
@@ -64,6 +72,11 @@ class AppointmentController extends Controller
             'statuses' => AppointmentStatus::options(),
             'doctors' => $doctors,
             'patients' => $patients,
+            'methods' => $methods,
+            'categories' => $categories,
+            'clinics' => $clinics,
+            'services' => $services,
+            'priorities' => $this->priorityOptions(),
         ]);
     }
 
@@ -81,7 +94,7 @@ class AppointmentController extends Controller
         $appointment = $this->appointmentService->getAppointmentById($id);
 
         return Inertia::render('Appointments/Show', [
-            'appointment' => $appointment,
+            'appointment' => $appointment->load(['patient', 'doctor', 'method', 'category', 'clinic', 'service']),
             'statuses' => AppointmentStatus::options(),
         ]);
     }
@@ -92,7 +105,11 @@ class AppointmentController extends Controller
         $appointment = $this->appointmentService->getAppointmentById($appointment->id);
 
         // Pass the single appointment instance to the view
-        $doctors = User::select('id', 'name')->orderBy('name')->get();
+        $doctors = User::role('doctor')->select('id', 'name')->orderBy('name')->get();
+        $methods = AppointmentMethod::active()->select('id', 'name')->orderBy('name')->get();
+        $categories = AppointmentCategory::active()->select('id', 'name')->orderBy('name')->get();
+        $clinics = Clinic::select('id', 'name')->orderBy('name')->get();
+        $services = Service::select('id', 'name')->orderBy('name')->get();
 
         $patients = Patient::select('id', 'first_name', 'last_name')
             ->orderBy('first_name')
@@ -107,6 +124,11 @@ class AppointmentController extends Controller
             'statuses' => AppointmentStatus::options(),
             'doctors' => $doctors,
             'patients' => $patients,
+            'methods' => $methods,
+            'categories' => $categories,
+            'clinics' => $clinics,
+            'services' => $services,
+            'priorities' => $this->priorityOptions(),
         ]);
     }
 
@@ -133,7 +155,8 @@ class AppointmentController extends Controller
             $appointments->map(fn($appointment) => [
                 'id' => $appointment->id,
                 'title' => $appointment->patient->first_name . ' ' . $appointment->patient->last_name,
-                'start' => $appointment->appointment_date . 'T' . $appointment->appointment_time,
+                'start' => $appointment->appointment_date->format('Y-m-d') . 'T' . $appointment->appointment_time,
+                'end' => $appointment->appointment_date->format('Y-m-d') . 'T' . $this->calculateEndTime($appointment),
                 'status' => $appointment->status,
             ])
         );
@@ -144,8 +167,27 @@ class AppointmentController extends Controller
             'events' => Appointment::with('patient')->get()->map(fn($a) => [
                 'id' => $a->id,
                 'title' => $a->patient ? $a->patient->first_name . ' ' . $a->patient->last_name : 'Unknown Patient',
-                'start' => $a->appointment_date . 'T' . $a->appointment_time,
+                'start' => $a->appointment_date->format('Y-m-d') . 'T' . $a->appointment_time,
+                'end' => $a->appointment_date->format('Y-m-d') . 'T' . $this->calculateEndTime($a),
             ]),
         ]);
+    }
+
+    private function priorityOptions(): array
+    {
+        return [
+            ['value' => 'low', 'label' => 'Low'],
+            ['value' => 'medium', 'label' => 'Medium'],
+            ['value' => 'high', 'label' => 'High'],
+            ['value' => 'urgent', 'label' => 'Urgent'],
+        ];
+    }
+
+    private function calculateEndTime(Appointment $appointment): string
+    {
+        $start = \Carbon\Carbon::parse($appointment->appointment_date->format('Y-m-d') . ' ' . $appointment->appointment_time);
+        $end = $start->copy()->addMinutes($appointment->duration_minutes ?? 30);
+
+        return $end->format('H:i:s');
     }
 }

@@ -14,14 +14,14 @@ class AppointmentService
     ) {}
     public function getAllAppointments(int $perPage = 15): LengthAwarePaginator
     {
-        return Appointment::with(['patient', 'doctor'])
+        return Appointment::with(['patient', 'doctor', 'method', 'category', 'clinic', 'service'])
             ->latest()
             ->paginate($perPage);
     }
 
     public function getAppointmentById(string $id): Appointment
     {
-        return Appointment::with(['patient', 'doctor'])
+        return Appointment::with(['patient', 'doctor', 'method', 'category', 'clinic', 'service'])
             ->findOrFail($id);
     }
 
@@ -30,7 +30,8 @@ class AppointmentService
         $this->ensureDoctorIsAvailable->execute(
             $data['doctor_id'],
             $data['appointment_date'],
-            $data['appointment_time']
+            $data['appointment_time'],
+            (int) ($data['duration_minutes'] ?? 30)
         );
         return DB::transaction(function () use ($data) {
             return Appointment::create($data);
@@ -45,11 +46,13 @@ class AppointmentService
         $doctorId = $data['doctor_id'] ?? $appointment->doctor_id;
         $appointmentDate = $data['appointment_date'] ?? $appointment->appointment_date;
         $appointmentTime = $data['appointment_time'] ?? $appointment->appointment_time;
+        $durationMinutes = (int) ($data['duration_minutes'] ?? $appointment->duration_minutes ?? 30);
 
         $this->ensureDoctorIsAvailable->execute(
             $doctorId,
             $appointmentDate,
             $appointmentTime,
+            $durationMinutes,
             $appointment->id
         );
 
@@ -70,7 +73,7 @@ class AppointmentService
 
     public function searchAppointments(array $filters): LengthAwarePaginator
     {
-        $query = Appointment::with(['patient', 'doctor'])->latest();
+        $query = Appointment::with(['patient', 'doctor', 'method', 'category', 'clinic', 'service'])->latest();
 
         if (!empty($filters['search'] ?? null)) {
             $term = $filters['search'];

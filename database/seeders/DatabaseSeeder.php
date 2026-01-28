@@ -31,11 +31,15 @@ class DatabaseSeeder extends Seeder
         // Seed patients
         $this->call(PatientSeeder::class);
 
-        // Seed appointments (requires patients and doctor users)
-        $this->call(AppointmentSeeder::class);
+        // Seed appointment reference data
+        $this->call(AppointmentMethodSeeder::class);
+        $this->call(AppointmentCategorySeeder::class);
 
         $this->call(ClinicSeeder::class);
         $this->call(ServiceTypeSeeder::class);
         $this->call(ServiceSeeder::class);
+
+        // Seed appointments (requires patients and doctor users)
+        $this->call(AppointmentSeeder::class);
     }
 }

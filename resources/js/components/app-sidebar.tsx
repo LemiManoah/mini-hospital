@@ -60,20 +60,30 @@ const mainNavItems: MainNavItems[] = [
                 icon: Folder,
             },
             {
-                title: 'All Appointments',
+                title: 'Appointments Report',
                 href: '/appointments',
                 icon: Folder,
+            },
+            {
+                title: 'Appointment Methods',
+                href: '/appointment-methods',
+                icon: BookOpen,
+            },
+            {
+                title: 'Appointment Categories',
+                href: '/appointment-categories',
+                icon: BookOpen,
+            },
+            {
+                title: 'Doctor Hours',
+                href: '/doctor-working-hours',
+                icon: BriefcaseMedicalIcon,
             },
             {
                 title: 'Calendar',
                 href: '/calendar',
                 icon: Calendar,
             },
-            {
-                title: 'Doctor Working Hours',
-                href: '/doctor-working-hours',
-                icon: BriefcaseMedicalIcon,
-            }
         ],
     },
     {
