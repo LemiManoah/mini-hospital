@@ -73,6 +73,42 @@ const mainNavItems: MainNavItems[] = [
         ],
     },
     {
+        title: 'Lab Section',
+        icon: AlertTriangle,
+        subItems: [
+            {
+                title: 'Lab Service Categories',
+                href: '/lab-service-categories',
+                icon: AlertTriangle,
+            },
+            {
+                title: 'Lab Services',
+                href: '/lab-services',
+                icon: AlertTriangle,
+            },
+            {
+                title: 'Lab Sample Types',
+                href: '/lab-sample-types',
+                icon: AlertTriangle,
+            },
+            {
+                title: 'Lab Result Options',
+                href: '/lab-result-options',
+                icon: AlertTriangle,
+            },
+            {
+                title: 'Lab Samples',
+                href: '/lab-samples',
+                icon: AlertTriangle,
+            },
+            {
+                title: 'Lab Queue',
+                href: '/lab/queue',
+                icon: AlertTriangle,
+            },
+        ],
+    },
+    {
         title: 'Appointments',
         icon: Folder,
         subItems: [

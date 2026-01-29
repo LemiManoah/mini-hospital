@@ -16,6 +16,12 @@ use App\Http\Controllers\VisitNoteController;
 use App\Http\Controllers\VisitTriageController;
 use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\StaffProfileController;
+use App\Http\Controllers\LabServiceController;
+use App\Http\Controllers\LabServiceCategoryController;
+use App\Http\Controllers\LabSampleTypeController;
+use App\Http\Controllers\LabResultOptionController;
+use App\Http\Controllers\LabSampleController;
+use App\Http\Controllers\VisitOrderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -63,6 +69,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/visits/{visit}', [PatientVisitController::class, 'show'])
         ->name('visits.show');
+
+    // Lab Management
+    Route::resource('lab-services', LabServiceController::class);
+    Route::resource('lab-service-categories', LabServiceCategoryController::class);
+    Route::resource('lab-sample-types', LabSampleTypeController::class);
+    Route::resource('lab-result-options', LabResultOptionController::class);
+    Route::resource('lab-samples', LabSampleController::class);
+    Route::post('/lab-samples/{id}/receive', [LabSampleController::class, 'receive'])->name('lab-samples.receive');
+    Route::post('/lab-samples/{id}/reject', [LabSampleController::class, 'reject'])->name('lab-samples.reject');
+    Route::post('/lab-samples/collect', [LabSampleController::class, 'collect'])->name('lab-samples.collect');
+
+    // Visit Orders
+    Route::post('/visit-orders', [VisitOrderController::class, 'store'])->name('visit-orders.store');
+    Route::get('/lab/queue', [VisitOrderController::class, 'labQueue'])->name('lab.queue');
+    Route::get('/patients/{patientId}/lab-history', [VisitOrderController::class, 'patientLabHistory'])->name('patients.lab-history');
+    Route::put('/visit-orders/{orderId}/status', [VisitOrderController::class, 'updateStatus'])->name('visit-orders.update-status');
 
 });
 

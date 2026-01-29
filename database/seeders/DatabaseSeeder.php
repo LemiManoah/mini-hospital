@@ -24,27 +24,27 @@ class DatabaseSeeder extends Seeder
 
         // Seed countries
         $this->call(CountrySeeder::class);
-        // Seed patient categories
-        $this->call(PatientCategorySeeder::class);
-        // Seed addresses
-        $this->call(AddressSeeder::class);
-        // Seed patients
-        $this->call(PatientSeeder::class);
-
-        // Seed appointment reference data
-        $this->call(AppointmentMethodSeeder::class);
-        $this->call(AppointmentCategorySeeder::class);
-
-        $this->call(ClinicSeeder::class);
-        $this->call(ServiceTypeSeeder::class);
-        $this->call(ServiceSeeder::class);
-
-        $this->call(VisitStatusSeeder::class);
-        $this->call(VisitTypeSeeder::class);
-        $this->call(PatientVisitSeeder::class);
-        $this->call(VisitTriageSeeder::class);
-        $this->call(VisitNoteSeeder::class);
-
+        
+        // Seed core data
+        $this->call([
+            PatientCategorySeeder::class,
+            PatientSeeder::class,
+            AppointmentCategorySeeder::class,
+            AppointmentMethodSeeder::class,
+            ClinicSeeder::class,
+            ServiceTypeSeeder::class,
+            ServiceSeeder::class,
+            VisitStatusSeeder::class,
+            VisitTypeSeeder::class,
+            PatientVisitSeeder::class,
+            VisitTriageSeeder::class,
+            VisitNoteSeeder::class,
+            LabServiceCategorySeeder::class,
+            LabSampleTypeSeeder::class,
+            LabServiceSeeder::class,
+            LabResultOptionSeeder::class,
+        ]);
+        
         // Seed appointments (requires patients and doctor users)
         $this->call(AppointmentSeeder::class);
     }
