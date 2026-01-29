@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Models\Address;
 use App\Models\Allergy;
+use App\Models\Clinic;
 use App\Models\Country;
 use App\Models\Patient;
+use App\Models\User;
+use App\Models\VisitType;
 use App\Enums\EnumsGender;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -118,9 +121,16 @@ class PatientController extends Controller
             $patient->address->display_name = "{$patient->address->district} - {$patient->address->city} - {$patient->address->county}";
         }
 
+        $visitTypes = VisitType::active()->select('id', 'name')->orderBy('name')->get();
+        $clinics = Clinic::select('id', 'name')->orderBy('name')->get();
+        $doctors = User::role('doctor')->select('id', 'name')->orderBy('name')->get();
+
         return Inertia::render('Patients/Show', [
             'patient' => $patient,
             'appointments' => $patient->appointments,
+            'visitTypes' => $visitTypes,
+            'clinics' => $clinics,
+            'doctors' => $doctors,
             'allergies' => Allergy::active()->select('id', 'name', 'severity')->orderBy('name')->get(),
             'kinRelationships' => EnumsKinRelationship::options(),
             'genders' => EnumsGender::options(),

@@ -21,7 +21,11 @@ class PatientVisitController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
-        $filter = $request->get('filter', 'all');
+        $filter = $request->get('filter');
+        if (!$filter && $request->routeIs('visits.index')) {
+            $filter = 'active';
+        }
+        $filter = $filter ?? 'all';
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
 

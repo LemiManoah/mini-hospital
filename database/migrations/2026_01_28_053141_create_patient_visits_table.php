@@ -17,9 +17,9 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained()->onDelete('cascade');
             $table->foreignId('visit_type_id')->constrained()->onDelete('restrict');
             $table->foreignId('status_id')->constrained('visit_statuses')->onDelete('restrict');
-            $table->foreignId('assigned_clinic_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('assigned_doctor_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('created_by_staff_id')->constrained()->onDelete('restrict');
+            $table->foreignId('assigned_clinic_id')->nullable()->constrained('clinics')->onDelete('set null');
+            $table->foreignId('assigned_doctor_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('created_by_staff_id')->constrained('users')->onDelete('restrict');
             $table->date('visit_date');
             $table->time('visit_time');
             $table->enum('priority_flag', ['low', 'medium', 'high', 'urgent'])->default('medium');

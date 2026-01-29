@@ -111,6 +111,30 @@ class AppointmentService
             $query->where('patient_id', $filters['patient_id']);
         }
 
+        if (!empty($filters['status'] ?? null)) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['appointment_method_id'] ?? null)) {
+            $query->where('appointment_method_id', $filters['appointment_method_id']);
+        }
+
+        if (!empty($filters['appointment_category_id'] ?? null)) {
+            $query->where('appointment_category_id', $filters['appointment_category_id']);
+        }
+
+        if (!empty($filters['priority_flag'] ?? null)) {
+            $query->where('priority_flag', $filters['priority_flag']);
+        }
+
+        if (!empty($filters['clinic_id'] ?? null)) {
+            $query->where('clinic_id', $filters['clinic_id']);
+        }
+
+        if (!empty($filters['service_id'] ?? null)) {
+            $query->where('service_id', $filters['service_id']);
+        }
+
         return $query->paginate(15)->withQueryString();
     }
 }

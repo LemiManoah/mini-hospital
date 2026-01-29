@@ -51,6 +51,10 @@ class Patient extends Model
         'date_of_birth' => 'date',
         'registration_date' => 'date',
     ];
+
+    protected $appends = [
+        'name',
+    ];
     public function country()
     {
         return $this->belongsTo(Country::class);

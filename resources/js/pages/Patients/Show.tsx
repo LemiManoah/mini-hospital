@@ -71,11 +71,17 @@ const InfoCard = ({
 interface Props {
     patient: Patient;
     appointments?: Appointment[];
+    visitTypes?: Array<{ id: number; name: string }>;
+    clinics?: Array<{ id: number; name: string }>;
+    doctors?: Array<{ id: number; name: string }>;
 }
 
 export default function PatientShow({
     patient,
     appointments = [],
+    visitTypes = [],
+    clinics = [],
+    doctors = [],
 }: Props) {
     const fullName = `${patient.first_name} ${patient.last_name}`;
 
@@ -111,7 +117,12 @@ export default function PatientShow({
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                        <StartVisitModal patient={patient}>
+                        <StartVisitModal
+                            patient={patient}
+                            visitTypes={visitTypes}
+                            clinics={clinics}
+                            doctors={doctors}
+                        >
                             <Button>Start Visit</Button>
                         </StartVisitModal>
 

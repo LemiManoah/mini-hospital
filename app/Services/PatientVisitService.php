@@ -74,7 +74,15 @@ class PatientVisitService
 
     public function getPatientVisitById($id)
     {
-        return PatientVisit::with(['patient', 'visitType', 'status', 'assignedClinic', 'assignedDoctor', 'createdByStaff'])
+        return PatientVisit::with([
+            'patient',
+            'visitType',
+            'status',
+            'assignedClinic',
+            'assignedDoctor',
+            'createdByStaff',
+            'notes.doctor',
+        ])
                            ->find($id);
     }
 

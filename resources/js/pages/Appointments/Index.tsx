@@ -41,22 +41,66 @@ export default function AppointmentIndex({
     filters,
     doctors = [],
     patients = [],
+    methods = [],
+    categories = [],
+    clinics = [],
+    services = [],
+    statuses = [],
+    priorities = [],
 }: {
     appointments: PaginatedAppointments;
-    filters: { search?: string; from?: string; to?: string; doctor_id?: string; patient_id?: string };
+    filters: {
+        search?: string;
+        from?: string;
+        to?: string;
+        doctor_id?: string;
+        patient_id?: string;
+        status?: string;
+        appointment_method_id?: string;
+        appointment_category_id?: string;
+        priority_flag?: string;
+        clinic_id?: string;
+        service_id?: string;
+    };
     doctors?: Array<{ id: number; name: string }>;
     patients?: Array<{ id: number; name: string }>;
+    methods?: Array<{ id: number; name: string }>;
+    categories?: Array<{ id: number; name: string }>;
+    clinics?: Array<{ id: number; name: string }>;
+    services?: Array<{ id: number; name: string }>;
+    statuses?: Array<{ value: string; label: string }>;
+    priorities?: Array<{ value: string; label: string }>;
 }) {
     const [search, setSearch] = useState(filters.search || '');
     const [from, setFrom] = useState(filters.from || '');
     const [to, setTo] = useState(filters.to || '');
     const [doctorId, setDoctorId] = useState(filters.doctor_id || '');
     const [patientId, setPatientId] = useState(filters.patient_id || '');
+    const [status, setStatus] = useState(filters.status || '');
+    const [methodId, setMethodId] = useState(filters.appointment_method_id || '');
+    const [categoryId, setCategoryId] = useState(filters.appointment_category_id || '');
+    const [priority, setPriority] = useState(filters.priority_flag || '');
+    const [clinicId, setClinicId] = useState(filters.clinic_id || '');
+    const [serviceId, setServiceId] = useState(filters.service_id || '');
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         router.get(
-            index.url({ query: { search, from, to, doctor_id: doctorId, patient_id: patientId } }),
+            index.url({
+                query: {
+                    search,
+                    from,
+                    to,
+                    doctor_id: doctorId,
+                    patient_id: patientId,
+                    status,
+                    appointment_method_id: methodId,
+                    appointment_category_id: categoryId,
+                    priority_flag: priority,
+                    clinic_id: clinicId,
+                    service_id: serviceId,
+                },
+            }),
             {},
             { preserveState: true, replace: true }
         );
@@ -68,6 +112,12 @@ export default function AppointmentIndex({
         setTo('');
         setDoctorId('');
         setPatientId('');
+        setStatus('');
+        setMethodId('');
+        setCategoryId('');
+        setPriority('');
+        setClinicId('');
+        setServiceId('');
         router.get(index.url({ query: {} }), {}, { preserveState: true, replace: true });
     };
 
@@ -93,9 +143,9 @@ export default function AppointmentIndex({
                 {/* Filters (card) */}
                 <form onSubmit={handleSearch} className="mb-4">
                     <div className="mb-3 rounded-md bg-gray-50 p-4 shadow-sm">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             <div className="space-y-1">
-                                <label className="text-xs text-gray-500">From</label>
+                                <label className="text-xs text-gray-500">From Date</label>
                                 <Input
                                     type="date"
                                     value={from}
@@ -104,7 +154,7 @@ export default function AppointmentIndex({
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs text-gray-500">To</label>
+                                <label className="text-xs text-gray-500">To Date</label>
                                 <Input
                                     type="date"
                                     value={to}
@@ -139,6 +189,90 @@ export default function AppointmentIndex({
                                     ))}
                                 </select>
                             </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-500">Status</label>
+                                <select
+                                    className="w-full rounded border px-2 py-1"
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                >
+                                    <option value="">All</option>
+                                    {statuses.map((s) => (
+                                        <option key={s.value} value={s.value}>{s.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-500">Priority</label>
+                                <select
+                                    className="w-full rounded border px-2 py-1"
+                                    value={priority}
+                                    onChange={(e) => setPriority(e.target.value)}
+                                >
+                                    <option value="">All</option>
+                                    {priorities.map((p) => (
+                                        <option key={p.value} value={p.value}>{p.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-500">Method</label>
+                                <select
+                                    className="w-full rounded border px-2 py-1"
+                                    value={methodId}
+                                    onChange={(e) => setMethodId(e.target.value)}
+                                >
+                                    <option value="">All</option>
+                                    {methods.map((m) => (
+                                        <option key={m.id} value={m.id}>{m.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-500">Category</label>
+                                <select
+                                    className="w-full rounded border px-2 py-1"
+                                    value={categoryId}
+                                    onChange={(e) => setCategoryId(e.target.value)}
+                                >
+                                    <option value="">All</option>
+                                    {categories.map((c) => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-500">Clinic</label>
+                                <select
+                                    className="w-full rounded border px-2 py-1"
+                                    value={clinicId}
+                                    onChange={(e) => setClinicId(e.target.value)}
+                                >
+                                    <option value="">All</option>
+                                    {clinics.map((c) => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-500">Service</label>
+                                <select
+                                    className="w-full rounded border px-2 py-1"
+                                    value={serviceId}
+                                    onChange={(e) => setServiceId(e.target.value)}
+                                >
+                                    <option value="">All</option>
+                                    {services.map((s) => (
+                                        <option key={s.id} value={s.id}>{s.name}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -146,20 +280,19 @@ export default function AppointmentIndex({
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                         <div className="flex items-center gap-2 w-full md:max-w-2xl">
                             <Input
-                                placeholder="Search by patient or doctor..."
+                                placeholder="Search by patient, doctor, or visit reference..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 className="w-full"
                             />
 
                             <Button type="submit" variant="outline" className="whitespace-nowrap">
-                                <Search className="h-4 w-4 mr-2" />
-                                Search
+                                Filter
                             </Button>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            {(search || from || to || doctorId || patientId) && (
+                        <div className="flex items-center">
+                            {(search || from || to || doctorId || patientId || status || methodId || categoryId || priority || clinicId || serviceId) && (
                                 <Button type="button" variant="ghost" onClick={handleClear}>
                                     Clear
                                 </Button>

@@ -59,6 +59,41 @@ class PatientVisit extends Model
         return $this->belongsTo(User::class, 'created_by_staff_id');
     }
 
+    public function triage()
+    {
+        return $this->hasOne(VisitTriage::class, 'visit_id');
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(VisitNote::class, 'visit_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(VisitOrder::class, 'visit_id');
+    }
+
+    public function prescriptions()
+    {
+        return $this->hasMany(VisitPrescription::class, 'visit_id');
+    }
+
+    public function billingChargeItems()
+    {
+        return $this->hasMany(BillingChargeItem::class, 'visit_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'visit_id');
+    }
+
+    public function admissions()
+    {
+        return $this->hasMany(Admission::class, 'visit_id');
+    }
+
     public function getDisplayNameAttribute(): string
     {
         $patientName = $this->patient?->name ?? 'Unknown Patient';
@@ -137,10 +172,15 @@ class PatientVisit extends Model
 
     public function scopeOrderedByPriority($query)
     {
-        $priorityOrder = ['urgent' => 1, 'high' => 2, 'medium' => 3, 'low' => 4];
-        return $query->orderByRaw("FIELD(priority_flag, 'urgent', 'high', 'medium', 'low')")
-                     ->orderBy('visit_date')
-                     ->orderBy('visit_time');
+        return $query->orderByRaw("CASE priority_flag
+            WHEN 'urgent' THEN 1
+            WHEN 'high' THEN 2
+            WHEN 'medium' THEN 3
+            WHEN 'low' THEN 4
+            ELSE 5
+        END")
+        ->orderBy('visit_date')
+        ->orderBy('visit_time');
     }
 
     public static function generateVisitNumber(): string

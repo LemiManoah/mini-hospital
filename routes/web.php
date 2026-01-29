@@ -12,6 +12,8 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientVisitController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceTypeController;
+use App\Http\Controllers\VisitNoteController;
+use App\Http\Controllers\VisitTriageController;
 use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\StaffProfileController;
 use Illuminate\Support\Facades\Route;
@@ -49,9 +51,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('staff-profile', StaffProfileController::class);
     Route::resource('services', ServiceController::class);
     Route::resource('service-types', ServiceTypeController::class);
+    Route::resource('triage', VisitTriageController::class);
+    Route::resource('consultations', VisitNoteController::class);
+    Route::resource('patient-visits', PatientVisitController::class);
 
     Route::post('/visits/quick-create', [PatientVisitController::class, 'quickStore'])
         ->name('visits.quick-store');
+
+    Route::get('/visits', [PatientVisitController::class, 'index'])
+        ->name('visits.index');
 
     Route::get('/visits/{visit}', [PatientVisitController::class, 'show'])
         ->name('visits.show');

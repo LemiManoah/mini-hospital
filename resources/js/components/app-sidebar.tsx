@@ -31,7 +31,7 @@ const mainNavItems: MainNavItems[] = [
     },
     {
         title: 'OutPatient',
-        icon: Folder,
+        icon: User2Icon,
         subItems: [
             {
                 title: 'New Patient',
@@ -47,6 +47,28 @@ const mainNavItems: MainNavItems[] = [
                 title: 'Active visits',
                 href: '/visits',
                 icon: Folder,
+            },
+        ],
+    },
+    {
+        title: 'Triage Section',
+        icon: AlertTriangle,
+        subItems: [
+            {
+                title: 'Triage Queue',
+                href: '/triage',
+                icon: AlertTriangle,
+            },
+        ],
+    },
+    {
+        title: 'Doctor Section',
+        icon: BriefcaseMedicalIcon,
+        subItems: [
+            {
+                title: 'Doctor Consultation',
+                href: '/consultations',
+                icon: BriefcaseMedicalIcon,
             },
         ],
     },

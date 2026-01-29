@@ -22,7 +22,19 @@ class AppointmentController extends Controller
     public function __construct(protected AppointmentService $appointmentService) {}
     public function index(Request $request)
     {
-        $filters = $request->only(['search', 'from', 'to', 'doctor_id', 'patient_id']);
+        $filters = $request->only([
+            'search',
+            'from',
+            'to',
+            'doctor_id',
+            'patient_id',
+            'status',
+            'appointment_method_id',
+            'appointment_category_id',
+            'priority_flag',
+            'clinic_id',
+            'service_id',
+        ]);
 
         // If any filter is provided, use the search method to apply filters
         $hasFilters = array_filter($filters, fn($v) => !is_null($v) && $v !== '');
@@ -50,6 +62,11 @@ class AppointmentController extends Controller
             'statuses' => AppointmentStatus::options(),
             'doctors' => $doctors,
             'patients' => $patients,
+            'methods' => AppointmentMethod::active()->select('id', 'name')->orderBy('name')->get(),
+            'categories' => AppointmentCategory::active()->select('id', 'name')->orderBy('name')->get(),
+            'clinics' => Clinic::select('id', 'name')->orderBy('name')->get(),
+            'services' => Service::select('id', 'name')->orderBy('name')->get(),
+            'priorities' => $this->priorityOptions(),
         ]);
     }
 
