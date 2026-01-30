@@ -106,6 +106,11 @@ const mainNavItems: MainNavItems[] = [
                 href: '/lab/queue',
                 icon: AlertTriangle,
             },
+            {
+                title: 'Lab Results',
+                href: '/lab/results',
+                icon: AlertTriangle,
+            },
         ],
     },
     {

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use App\Services\LabResultOptionService;
 use App\Http\Requests\LabResultOptionRequest;
+use App\Services\LabResultOptionService;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
 
 class LabResultOptionController extends Controller
 {
@@ -17,14 +17,28 @@ class LabResultOptionController extends Controller
     {
         $search = request()->get('search');
 
-        if (!empty($search)) {
-            $labResultOptions = $this->labResultOptionService->searchLabResultOptions($search);
-        } else {
-            $labResultOptions = $this->labResultOptionService->getAllLabResultOptions();
+        $query = \App\Models\LabService::query()
+            ->with([
+                'labResultType',
+                'resultOptions' => function ($q) {
+                    $q->ordered();
+                },
+                'resultParameters' => function ($q) {
+                    $q->ordered()->with('referenceRanges');
+                },
+            ]);
+
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
         }
 
+        $labServices = $query->orderBy('name')->get();
+
         return Inertia::render('LabResultOptions/Index', [
-            'labResultOptions' => $labResultOptions,
+            'labServices' => $labServices,
             'filters' => [
                 'search' => $search,
             ],
@@ -33,7 +47,7 @@ class LabResultOptionController extends Controller
 
     public function create()
     {
-        $services = \App\Models\LabService::active()->get(['id', 'name']);
+        $services = \App\Models\LabService::active()->get(['id', 'name', 'code']);
 
         return Inertia::render('LabResultOptions/Create', [
             'services' => $services,
@@ -52,7 +66,7 @@ class LabResultOptionController extends Controller
     public function edit(string $id)
     {
         $labResultOption = $this->labResultOptionService->getLabResultOptionById($id);
-        $services = \App\Models\LabService::active()->get(['id', 'name']);
+        $services = \App\Models\LabService::active()->get(['id', 'name', 'code']);
 
         return Inertia::render('LabResultOptions/Edit', [
             'labResultOption' => $labResultOption,

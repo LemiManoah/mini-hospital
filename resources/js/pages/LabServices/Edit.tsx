@@ -28,7 +28,7 @@ export default function LabServiceEdit({ labService, categories, sampleTypes }: 
         code: labService.code,
         description: labService.description ?? '',
         price: labService.price.toString(),
-        sample_type_code: labService.sample_type_code ?? '',
+        sample_type_id: labService.sample_type_id?.toString() ?? '',
         result_fields: labService.result_fields ? JSON.stringify(labService.result_fields, null, 2) : '',
         reference_range: labService.reference_range ?? '',
         clinical_notes: labService.clinical_notes ?? '',
@@ -78,23 +78,23 @@ export default function LabServiceEdit({ labService, categories, sampleTypes }: 
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="sample_type_code">Sample Type</Label>
+                            <Label htmlFor="sample_type_id">Sample Type</Label>
                             <Select
-                                value={data.sample_type_code}
-                                onValueChange={(value) => setData('sample_type_code', value)}
+                                value={data.sample_type_id}
+                                onValueChange={(value) => setData('sample_type_id', value)}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select sample type" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {sampleTypes.map((type) => (
-                                        <SelectItem key={type.id} value={type.code}>
+                                        <SelectItem key={type.id} value={type.id.toString()}>
                                             {type.code} - {type.name}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
-                            {errors.sample_type_code && <p className="text-sm text-red-500">{errors.sample_type_code}</p>}
+                            {errors.sample_type_id && <p className="text-sm text-red-500">{errors.sample_type_id}</p>}
                         </div>
                     </div>
 

@@ -12,6 +12,7 @@ class VisitResult extends Model
 
     protected $fillable = [
         'visit_order_id',
+        'visit_order_item_id',
         'result_payload',
         'recorded_by',
         'verified_by',
@@ -20,11 +21,17 @@ class VisitResult extends Model
 
     protected $casts = [
         'verified_at' => 'datetime',
+        'result_payload' => 'array',
     ];
 
     public function order()
     {
         return $this->belongsTo(VisitOrder::class, 'visit_order_id');
+    }
+
+    public function item()
+    {
+        return $this->belongsTo(VisitOrderItem::class, 'visit_order_item_id');
     }
 
     public function recordedBy()

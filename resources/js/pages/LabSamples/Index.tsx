@@ -38,12 +38,9 @@ export default function LabSampleIndex({
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Lab Samples" />
+            <Head title="Lab Samples Report" />
             <div className="mt-4 mb-4 flex items-center justify-between gap-2 px-4">
-                <h1 className="text-2xl font-bold">Lab Samples</h1>
-                <Link href="/lab-samples/create">
-                    <Button>+ New Sample</Button>
-                </Link>
+                <h1 className="text-2xl font-bold">Lab Samples Report</h1>
             </div>
 
             <div className="m-2 overflow-x-auto rounded border p-4">
@@ -74,21 +71,26 @@ export default function LabSampleIndex({
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead>#</TableHead>
                             <TableHead>Sample Number</TableHead>
-                            <TableHead>Sample Type</TableHead>
+                            <TableHead>Patient</TableHead>
                             <TableHead>Test</TableHead>
+                            <TableHead>Sample Type</TableHead>
+                            <TableHead>Container</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Collected By</TableHead>
                             <TableHead>Collected At</TableHead>
-                            <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {labSamples.data.map((sample) => (
+                        {labSamples.data.map((sample, index) => (
                             <TableRow key={sample.id}>
+                                <TableCell>{index + 1}</TableCell>
                                 <TableCell className="font-medium">{sample.sample_number}</TableCell>
-                                <TableCell>{sample.sampleType?.name ?? '-'}</TableCell>
+                                <TableCell>{sample.visitOrderItem?.order?.visit?.patient?.name ?? '-'}</TableCell>
                                 <TableCell>{sample.visitOrderItem?.service?.name ?? '-'}</TableCell>
+                                <TableCell>{sample.sampleType?.name ?? '-'}</TableCell>
+                                <TableCell>{sample.container ?? '-'}</TableCell>
                                 <TableCell>
                                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                                         sample.status === 'collected' ? 'bg-blue-100 text-blue-800' :
@@ -100,23 +102,6 @@ export default function LabSampleIndex({
                                 </TableCell>
                                 <TableCell>{sample.collectedBy?.name ?? '-'}</TableCell>
                                 <TableCell>{sample.collected_at ? new Date(sample.collected_at).toLocaleString() : '-'}</TableCell>
-                                <TableCell>
-                                    <div className="flex gap-2">
-                                        <Link href={`/lab-samples/${sample.id}`}>
-                                            <Button variant="outline" size="sm">View</Button>
-                                        </Link>
-                                        {sample.status === 'collected' && (
-                                            <form method="post" action={`/lab-samples/${sample.id}/receive`} className="inline">
-                                                <Button type="submit" size="sm">Receive</Button>
-                                            </form>
-                                        )}
-                                        {sample.status === 'collected' && (
-                                            <form method="post" action={`/lab-samples/${sample.id}/reject`} className="inline">
-                                                <Button type="submit" variant="destructive" size="sm">Reject</Button>
-                                            </form>
-                                        )}
-                                    </div>
-                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

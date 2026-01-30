@@ -19,7 +19,7 @@ class LabServiceRequest extends FormRequest
             'code' => 'required|string|max:50|unique:lab_services,code',
             'description' => 'nullable|string|max:2000',
             'price' => 'required|numeric|min:0',
-            'sample_type_code' => 'nullable|exists:lab_sample_types,code',
+            'sample_type_id' => 'nullable|exists:lab_sample_types,id',
             'result_fields' => 'nullable|array',
             'reference_range' => 'nullable|string|max:1000',
             'clinical_notes' => 'nullable|string|max:2000',
@@ -27,7 +27,7 @@ class LabServiceRequest extends FormRequest
         ];
 
         if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
-            $rules['code'] = 'required|string|max:50|unique:lab_services,code,' . $this->route('lab_service');
+            $rules['code'] = 'required|string|max:50|unique:lab_services,code,'.$this->route('lab_service');
         }
 
         return $rules;
@@ -47,7 +47,7 @@ class LabServiceRequest extends FormRequest
             'price.required' => 'The price is required.',
             'price.numeric' => 'The price must be a number.',
             'price.min' => 'The price must be at least 0.',
-            'sample_type_code.exists' => 'The selected sample type does not exist.',
+            'sample_type_id.exists' => 'The selected sample type does not exist.',
             'reference_range.max' => 'The reference range may not be greater than 1000 characters.',
             'clinical_notes.max' => 'The clinical notes may not be greater than 2000 characters.',
         ];

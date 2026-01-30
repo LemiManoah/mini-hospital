@@ -10,26 +10,40 @@ return new class extends Migration
     {
         Schema::create('lab_services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('lab_service_category_id')->constrained('lab_service_categories')->onDelete('cascade');
-            $table->string('name', 200);
-            $table->string('code', 50)->unique();
+
+            // Lab-specific categorization (separate from general service_types)
+            $table->foreignId('lab_service_category_id')->constrained('lab_service_categories');
+
+            // Basic service information
+            $table->string('name'); // e.g., "Complete Blood Count"
+            $table->string('code')->unique(); // e.g., "CBC"
             $table->text('description')->nullable();
-            $table->decimal('price', 10, 2)->default(0);
-            $table->string('sample_type_code', 20)->nullable();
-            $table->json('result_fields')->nullable();
-            $table->text('reference_range')->nullable();
-            $table->text('clinical_notes')->nullable();
+
+            // Pricing
+            $table->decimal('price', 10, 2);
+
+            // Lab-specific fields (not in general services)
+            $table->foreignId('sample_type_id')->nullable()->constrained('lab_sample_types'); // Direct foreign key
+            $table->foreignId('lab_result_type_id')->nullable()->constrained('lab_result_types'); // Result format type
+            $table->json('result_fields')->nullable(); // Structure for lab results
+            $table->text('reference_range')->nullable(); // Normal values
+            $table->text('clinical_notes')->nullable(); // Interpretation guidelines
+
+            // Status and tracking
             $table->boolean('is_active')->default(true);
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->softDeletes();
-            $table->timestamps();
 
+            $table->timestamps();
+            $table->softDeletes();
+
+            // Indexes
             $table->index('lab_service_category_id');
             $table->index('code');
+            $table->index('sample_type_id');
             $table->index('is_active');
-            $table->index('sample_type_code');
         });
+
     }
 
     public function down(): void

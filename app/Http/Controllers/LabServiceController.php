@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use App\Services\LabServiceService;
-use App\Services\LabServiceCategoryService;
-use App\Services\LabSampleTypeService;
 use App\Http\Requests\LabServiceRequest;
+use App\Services\LabSampleTypeService;
+use App\Services\LabServiceCategoryService;
+use App\Services\LabServiceService;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
 
 class LabServiceController extends Controller
 {
@@ -22,7 +22,7 @@ class LabServiceController extends Controller
         $search = request()->get('search');
         $category = request()->get('category');
 
-        if (!empty($search) || !empty($category)) {
+        if (! empty($search) || ! empty($category)) {
             $labServices = $this->labServiceService->searchLabServices($search);
             if ($category) {
                 $labServices = $labServices->where('lab_service_category_id', $category);
@@ -37,7 +37,19 @@ class LabServiceController extends Controller
         $categories = $this->labServiceCategoryService->getActiveLabServiceCategories();
 
         if (request()->wantsJson()) {
-            return response()->json($labServices);
+            // Load sample type relationship for consultation panel
+            if (method_exists($labServices, 'items')) {
+                // It's a paginated collection
+                $labServices->getCollection()->load('sampleType');
+            } else {
+                // It's a regular collection
+                $labServices->load('sampleType');
+            }
+
+            // Format the response for the consultation panel
+            return response()->json([
+                'data' => $labServices->items() ?? $labServices,
+            ]);
         }
 
         return Inertia::render('LabServices/Index', [

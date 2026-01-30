@@ -6,14 +6,40 @@ use App\Models\LabSample;
 
 class LabSampleService
 {
-    public function searchLabSamples($query)
+    public function searchLabSamples($query = null, $status = 'all')
     {
-        return LabSample::where('sample_number', 'like', "%{$query}%")
-            ->orWhereHas('sampleType', function ($q) use ($query) {
-                $q->where('name', 'like', "%{$query}%")
-                  ->orWhere('code', 'like', "%{$query}%");
-            })
-            ->with(['visitOrderItem', 'sampleType', 'collectedBy', 'receivedBy']);
+        $samples = LabSample::with([
+            'visitOrderItem.service',
+            'visitOrderItem.order.visit.patient',
+            'sampleType',
+            'collectedBy',
+            'receivedBy',
+        ]);
+
+        // Apply search filter
+        if (! empty($query)) {
+            $samples = $samples->where(function ($q) use ($query) {
+                $q->where('sample_number', 'like', "%{$query}%")
+                    ->orWhereHas('sampleType', function ($subQ) use ($query) {
+                        $subQ->where('name', 'like', "%{$query}%")
+                            ->orWhere('code', 'like', "%{$query}%");
+                    })
+                    ->orWhereHas('visitOrderItem.service', function ($subQ) use ($query) {
+                        $subQ->where('name', 'like', "%{$query}%")
+                            ->orWhere('code', 'like', "%{$query}%");
+                    })
+                    ->orWhereHas('visitOrderItem.order.visit.patient', function ($subQ) use ($query) {
+                        $subQ->where('name', 'like', "%{$query}%");
+                    });
+            });
+        }
+
+        // Apply status filter
+        if ($status !== 'all') {
+            $samples = $samples->where('status', $status);
+        }
+
+        return $samples->latest('collected_at')->paginate(10);
     }
 
     public function getAllLabSamples()
@@ -38,6 +64,7 @@ class LabSampleService
     public function createLabSample(array $data): LabSample
     {
         $data['sample_number'] = $this->generateSampleNumber();
+
         return LabSample::create($data);
     }
 
@@ -45,6 +72,7 @@ class LabSampleService
     {
         $labSample = LabSample::findOrFail($id);
         $labSample->update($data);
+
         return $labSample;
     }
 
@@ -67,6 +95,7 @@ class LabSampleService
     {
         $data['status'] = 'collected';
         $data['collected_at'] = now();
+
         return $this->createLabSample($data);
     }
 
@@ -78,6 +107,7 @@ class LabSampleService
             'received_by' => $receivedBy,
             'received_at' => now(),
         ]);
+
         return $labSample;
     }
 
@@ -88,6 +118,7 @@ class LabSampleService
             'status' => 'rejected',
             'rejection_reason' => $reason,
         ]);
+
         return $labSample;
     }
 
@@ -99,6 +130,7 @@ class LabSampleService
             ->orderBy('sample_number', 'desc')
             ->value('sample_number');
         $sequence = $last ? (int) substr($last, -4) + 1 : 1;
-        return $prefix . $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+
+        return $prefix.$date.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 }

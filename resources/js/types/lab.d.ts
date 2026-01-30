@@ -21,15 +21,66 @@ export interface LabSampleType {
 
 export interface LabResultOption {
     id: number;
-    lab_test_id: number;
-    option_value: string;
-    label: string;
+    lab_service_id: number;
+    lab_result_type_id?: number | null;
+    option_name: string;
+    option_code?: string | null;
+    symbol?: string | null;
     is_abnormal: boolean;
-    sort_order: number;
-    lab_test?: {
+    display_order: number;
+    is_active: boolean;
+    labService?: {
         id: number;
         name: string;
+        code?: string;
     };
+    labResultType?: {
+        id: number;
+        name: string;
+        code: string;
+        result_format: string;
+    };
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface LabReferenceRange {
+    id: number;
+    lab_result_parameter_id: number;
+    age_range_from?: string | null;
+    age_range_to?: string | null;
+    sex: 'male' | 'female' | 'both';
+    phase?: string | null;
+    weeks_from?: string | null;
+    weeks_to?: string | null;
+    min_value?: number | null;
+    max_value?: number | null;
+    reference_text?: string | null;
+    is_active: boolean;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface LabResultParameter {
+    id: number;
+    lab_service_id: number;
+    parameter_name: string;
+    parameter_code?: string | null;
+    unit?: string | null;
+    is_active: boolean;
+    display_order: number;
+    referenceRanges?: LabReferenceRange[];
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface LabResultType {
+    id: number;
+    name: string;
+    code: string;
+    result_format: 'machine_based' | 'simple_options' | 'parameter_based' | 'complex_hormone';
+    description?: string | null;
+    is_active: boolean;
     created_at?: string;
     updated_at?: string;
 }
@@ -76,7 +127,8 @@ export interface LabService {
     code: string;
     description?: string;
     price: number;
-    sample_type_code?: string;
+    sample_type_id?: number;
+    lab_result_type_id?: number;
     result_fields?: Array<{
         name: string;
         label: string;
@@ -94,7 +146,9 @@ export interface LabService {
     sampleType?: LabSampleType;
     lab_service_category?: LabServiceCategory;
     sample_type?: LabSampleType;
+    labResultType?: LabResultType;
     resultOptions?: LabResultOption[];
+    resultParameters?: LabResultParameter[];
     createdBy?: {
         id: number;
         name: string;

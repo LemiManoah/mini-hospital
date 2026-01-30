@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
 
         // Seed countries
         $this->call(CountrySeeder::class);
-        
+
         // Seed core data
         $this->call([
             PatientCategorySeeder::class,
@@ -42,9 +42,10 @@ class DatabaseSeeder extends Seeder
             LabServiceCategorySeeder::class,
             LabSampleTypeSeeder::class,
             LabServiceSeeder::class,
-            LabResultOptionSeeder::class,
+            LabResultTypeSeeder::class,
+            LabResultOptionsSeeder::class,
         ]);
-        
+
         // Seed appointments (requires patients and doctor users)
         $this->call(AppointmentSeeder::class);
     }

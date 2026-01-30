@@ -17,7 +17,8 @@ class LabService extends Model
         'code',
         'description',
         'price',
-        'sample_type_code',
+        'sample_type_id',
+        'lab_result_type_id',
         'result_fields',
         'reference_range',
         'clinical_notes',
@@ -39,12 +40,22 @@ class LabService extends Model
 
     public function sampleType()
     {
-        return $this->belongsTo(LabSampleType::class, 'sample_type_code', 'code');
+        return $this->belongsTo(LabSampleType::class, 'sample_type_id');
     }
 
     public function resultOptions()
     {
-        return $this->hasMany(LabResultOption::class, 'lab_test_id');
+        return $this->hasMany(LabResultOption::class);
+    }
+
+    public function resultParameters()
+    {
+        return $this->hasMany(LabResultParameter::class);
+    }
+
+    public function labResultType()
+    {
+        return $this->belongsTo(LabResultType::class);
     }
 
     public function getDisplayNameAttribute(): string
@@ -66,12 +77,12 @@ class LabService extends Model
     {
         return $query->where('lab_service_category_id', $categoryId);
     }
-    
+
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-    
+
     public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by');

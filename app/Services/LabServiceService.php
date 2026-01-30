@@ -11,12 +11,13 @@ class LabServiceService
         return LabService::where('name', 'like', "%{$query}%")
             ->orWhere('code', 'like', "%{$query}%")
             ->orWhere('description', 'like', "%{$query}%")
-            ->with(['labServiceCategory', 'sampleType']);
+            ->with(['labServiceCategory', 'sampleType'])
+            ->paginate(10);
     }
 
     public function getAllLabServices()
     {
-        return LabService::with(['labServiceCategory', 'sampleType'])->paginate(10);
+        return LabService::active()->with(['labServiceCategory', 'sampleType'])->paginate(10);
     }
 
     public function getActiveLabServices()
@@ -51,6 +52,7 @@ class LabServiceService
     {
         $labService = LabService::findOrFail($id);
         $labService->update($data);
+
         return $labService;
     }
 
@@ -72,8 +74,9 @@ class LabServiceService
     public function toggleActiveStatus(string $id): LabService
     {
         $labService = LabService::findOrFail($id);
-        $labService->is_active = !$labService->is_active;
+        $labService->is_active = ! $labService->is_active;
         $labService->save();
+
         return $labService;
     }
 }

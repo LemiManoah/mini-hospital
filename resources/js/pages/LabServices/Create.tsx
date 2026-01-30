@@ -26,7 +26,7 @@ export default function LabServiceCreate({ categories, sampleTypes }: Props) {
         code: '',
         description: '',
         price: '',
-        sample_type_code: '',
+        sample_type_id: '',
         result_fields: '',
         reference_range: '',
         clinical_notes: '',
@@ -76,23 +76,23 @@ export default function LabServiceCreate({ categories, sampleTypes }: Props) {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="sample_type_code">Sample Type</Label>
+                            <Label htmlFor="sample_type_id">Sample Type</Label>
                             <Select
-                                value={data.sample_type_code}
-                                onValueChange={(value) => setData('sample_type_code', value)}
+                                value={data.sample_type_id}
+                                onValueChange={(value) => setData('sample_type_id', value)}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select sample type" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {sampleTypes.map((type) => (
-                                        <SelectItem key={type.id} value={type.code}>
+                                        <SelectItem key={type.id} value={type.id.toString()}>
                                             {type.code} - {type.name}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
-                            {errors.sample_type_code && <p className="text-sm text-red-500">{errors.sample_type_code}</p>}
+                            {errors.sample_type_id && <p className="text-sm text-red-500">{errors.sample_type_id}</p>}
                         </div>
                     </div>
 

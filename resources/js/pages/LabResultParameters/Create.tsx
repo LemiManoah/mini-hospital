@@ -6,40 +6,40 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
-import { LabResultOption } from '@/types/lab';
 import { index } from '@/routes/lab-result-options';
 import { dashboard } from '@/routes';
 
 interface Props {
-    labResultOption: LabResultOption;
     services: Array<{ id: number; name: string; code?: string | null }>;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: dashboard().url },
     { title: 'Lab Result Options', href: index().url },
-    { title: 'Edit Result Option', href: '#' },
+    { title: 'New Parameter', href: '#' },
 ];
 
-export default function LabResultOptionEdit({ labResultOption, services }: Props) {
-    const { data, setData, put, processing, errors } = useForm({
-        lab_service_id: labResultOption.lab_service_id.toString(),
-        option_name: labResultOption.option_name,
-        option_code: labResultOption.option_code ?? '',
-        symbol: labResultOption.symbol ?? '',
-        is_abnormal: labResultOption.is_abnormal,
-        display_order: labResultOption.display_order,
-        is_active: labResultOption.is_active,
+export default function LabResultParameterCreate({ services }: Props) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const serviceIdParam = urlParams.get('service_id');
+
+    const { data, setData, post, processing, errors } = useForm({
+        lab_service_id: serviceIdParam || '',
+        parameter_name: '',
+        parameter_code: '',
+        unit: '',
+        is_active: true,
+        display_order: 0,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(`/lab-result-options/${labResultOption.id}`);
+        post('/lab-result-parameters');
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Edit Lab Result Option: ${labResultOption.option_name}`} />
+            <Head title="New Lab Result Parameter" />
             <div className="mt-4 mb-4 flex items-center justify-between gap-2 px-4">
                 <div className="flex items-center gap-2">
                     <Link href={index().url}>
@@ -47,7 +47,7 @@ export default function LabResultOptionEdit({ labResultOption, services }: Props
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                     </Link>
-                    <h1 className="text-2xl font-bold">Edit Lab Result Option</h1>
+                    <h1 className="text-2xl font-bold">New Lab Result Parameter</h1>
                 </div>
             </div>
 
@@ -75,53 +75,40 @@ export default function LabResultOptionEdit({ labResultOption, services }: Props
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                            <Label htmlFor="option_name">Expected result option *</Label>
+                            <Label htmlFor="parameter_name">Parameter Name *</Label>
                             <Input
-                                id="option_name"
-                                value={data.option_name}
-                                onChange={(e) => setData('option_name', e.target.value)}
-                                placeholder="e.g., Positive"
+                                id="parameter_name"
+                                value={data.parameter_name}
+                                onChange={(e) => setData('parameter_name', e.target.value)}
+                                placeholder="e.g., WBC"
                             />
-                            {errors.option_name && <p className="text-sm text-red-500">{errors.option_name}</p>}
+                            {errors.parameter_name && <p className="text-sm text-red-500">{errors.parameter_name}</p>}
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="option_code">Code</Label>
+                            <Label htmlFor="parameter_code">Parameter Code</Label>
                             <Input
-                                id="option_code"
-                                value={data.option_code}
-                                onChange={(e) => setData('option_code', e.target.value)}
-                                placeholder="e.g., POSITIVE"
+                                id="parameter_code"
+                                value={data.parameter_code}
+                                onChange={(e) => setData('parameter_code', e.target.value)}
+                                placeholder="e.g., WBC"
                             />
-                            {errors.option_code && <p className="text-sm text-red-500">{errors.option_code}</p>}
+                            {errors.parameter_code && <p className="text-sm text-red-500">{errors.parameter_code}</p>}
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                            <Label htmlFor="symbol">Symbol</Label>
+                            <Label htmlFor="unit">Unit</Label>
                             <Input
-                                id="symbol"
-                                value={data.symbol}
-                                onChange={(e) => setData('symbol', e.target.value)}
-                                placeholder="e.g., +"
+                                id="unit"
+                                value={data.unit}
+                                onChange={(e) => setData('unit', e.target.value)}
+                                placeholder="e.g., fl, U/L, mmol/L"
                             />
-                            {errors.symbol && <p className="text-sm text-red-500">{errors.symbol}</p>}
+                            {errors.unit && <p className="text-sm text-red-500">{errors.unit}</p>}
                         </div>
 
-                        <div className="flex items-center space-x-2">
-                            <input
-                                type="checkbox"
-                                id="is_active"
-                                checked={data.is_active}
-                                onChange={(e) => setData('is_active', e.target.checked)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                            <Label htmlFor="is_active">Active</Label>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="display_order">Display Order</Label>
                             <Input
@@ -133,17 +120,17 @@ export default function LabResultOptionEdit({ labResultOption, services }: Props
                             />
                             {errors.display_order && <p className="text-sm text-red-500">{errors.display_order}</p>}
                         </div>
+                    </div>
 
-                        <div className="flex items-center space-x-2">
-                            <input
-                                type="checkbox"
-                                id="is_abnormal"
-                                checked={data.is_abnormal}
-                                onChange={(e) => setData('is_abnormal', e.target.checked)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                            <Label htmlFor="is_abnormal">Mark as Abnormal</Label>
-                        </div>
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            id="is_active"
+                            checked={data.is_active}
+                            onChange={(e) => setData('is_active', e.target.checked)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <Label htmlFor="is_active">Active</Label>
                     </div>
 
                     <div className="flex justify-end gap-3">
@@ -151,7 +138,7 @@ export default function LabResultOptionEdit({ labResultOption, services }: Props
                             <Button type="button" variant="outline">Cancel</Button>
                         </Link>
                         <Button type="submit" disabled={processing}>
-                            {processing ? 'Saving...' : 'Save Changes'}
+                            {processing ? 'Saving...' : 'Save Parameter'}
                         </Button>
                     </div>
                 </form>

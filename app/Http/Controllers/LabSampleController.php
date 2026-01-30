@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use App\Services\LabSampleService;
 use App\Http\Requests\LabSampleRequest;
+use App\Services\LabSampleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class LabSampleController extends Controller
 {
@@ -15,19 +14,12 @@ class LabSampleController extends Controller
         protected LabSampleService $labSampleService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $search = request()->get('search');
-        $status = request()->get('status');
+        $search = $request->get('search');
+        $status = $request->get('status', 'all');
 
-        if (!empty($search) || !empty($status)) {
-            $labSamples = $this->labSampleService->searchLabSamples($search);
-            if ($status) {
-                $labSamples = $labSamples->where('status', $status);
-            }
-        } else {
-            $labSamples = $this->labSampleService->getAllLabSamples();
-        }
+        $labSamples = $this->labSampleService->searchLabSamples($search, $status);
 
         return Inertia::render('LabSamples/Index', [
             'labSamples' => $labSamples,
@@ -91,40 +83,5 @@ class LabSampleController extends Controller
         $this->labSampleService->restoreLabSample($id);
 
         return back()->with('success', 'Lab Sample restored successfully');
-    }
-
-    public function collect(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'visit_order_item_id' => 'required|exists:visit_order_items,id',
-            'sample_type_id' => 'required|exists:lab_sample_types,id',
-            'container' => 'nullable|string|max:100',
-            'volume' => 'nullable|string|max:50',
-        ]);
-
-        $this->labSampleService->collectSample([
-            ...$validated,
-            'collected_by' => Auth::id(),
-        ]);
-
-        return back()->with('success', 'Sample collected successfully');
-    }
-
-    public function receive(string $id): RedirectResponse
-    {
-        $this->labSampleService->receiveSample($id, Auth::id());
-
-        return back()->with('success', 'Sample received successfully');
-    }
-
-    public function reject(Request $request, string $id): RedirectResponse
-    {
-        $validated = $request->validate([
-            'rejection_reason' => 'required|string|max:500',
-        ]);
-
-        $this->labSampleService->rejectSample($id, $validated['rejection_reason']);
-
-        return back()->with('success', 'Sample rejected');
     }
 }

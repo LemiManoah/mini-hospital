@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LabResultOptionRequest extends FormRequest
+class LabResultParameterRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,13 +15,11 @@ class LabResultOptionRequest extends FormRequest
     {
         return [
             'lab_service_id' => 'required|exists:lab_services,id',
-            'lab_result_type_id' => 'nullable|exists:lab_result_types,id',
-            'option_name' => 'required|string|max:255',
-            'option_code' => 'nullable|string|max:255',
-            'symbol' => 'nullable|string|max:255',
-            'is_abnormal' => 'sometimes|boolean',
-            'display_order' => 'sometimes|integer|min:0',
+            'parameter_name' => 'required|string|max:255',
+            'parameter_code' => 'nullable|string|max:255',
+            'unit' => 'nullable|string|max:50',
             'is_active' => 'sometimes|boolean',
+            'display_order' => 'sometimes|integer|min:0',
         ];
     }
 
@@ -30,7 +28,7 @@ class LabResultOptionRequest extends FormRequest
         return [
             'lab_service_id.required' => 'The lab service is required.',
             'lab_service_id.exists' => 'The selected lab service does not exist.',
-            'option_name.required' => 'The expected result option is required.',
+            'parameter_name.required' => 'The parameter name is required.',
             'display_order.min' => 'The display order must be at least 0.',
         ];
     }

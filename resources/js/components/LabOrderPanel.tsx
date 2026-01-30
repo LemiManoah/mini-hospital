@@ -213,7 +213,14 @@ export default function LabOrderPanel({ visitId, onOrderChange }: LabOrderPanelP
                                 )}
                                 {labServices.map((service) => (
                                     <SelectItem key={service.id} value={String(service.id)}>
-                                        {service.code} - {service.name} (UGX{service.price})
+                                        <div>
+                                            <div>{service.code} - {service.name} (UGX{service.price})</div>
+                                            {service.sampleType && (
+                                                <div className="text-xs text-gray-500">
+                                                    Sample: {service.sampleType.name} ({service.sampleType.default_container})
+                                                </div>
+                                            )}
+                                        </div>
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -235,6 +242,14 @@ export default function LabOrderPanel({ visitId, onOrderChange }: LabOrderPanelP
                                         <div className="text-sm text-gray-500">
                                             {item.service.code} • UGX{item.price}
                                         </div>
+                                        {item.service.sampleType && (
+                                            <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded mt-1">
+                                                Sample: {item.service.sampleType.name} ({item.service.sampleType.code})
+                                                {item.service.sampleType.default_container && (
+                                                    <span> • Container: {item.service.sampleType.default_container}</span>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Input

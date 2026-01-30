@@ -8,7 +8,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { LabService } from '@/types/lab';
-import { index, create, edit, destroy} from '@/routes/lab-services';
+import { index, create, edit, destroy } from '@/routes/lab-services';
 import { dashboard } from '@/routes'
 
 
@@ -130,8 +130,8 @@ export default function LabServiceIndex({
                                         <Link href={edit(service.id).url}>
                                             <Button variant="outline" size="sm">Edit</Button>
                                         </Link>
-                                        <Button 
-                                            size="sm" 
+                                        <Button
+                                            size="sm"
                                             variant="destructive"
                                             onClick={() => handleDelete(service.id)}
                                         >

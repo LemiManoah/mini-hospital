@@ -1,60 +1,90 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { Search, Eye, Play, CheckCircle, XCircle, Clock, User, Calendar } from 'lucide-react';
+import { AlertTriangle, Search, TestTube, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useState } from 'react';
+import SamplePickModal from '@/components/SamplePickModal';
 
 interface LabOrder {
-    id: number;
-    visit_id: number;
-    order_type: string;
-    status: string;
-    created_at: string;
+    patient: {
+        id: number;
+        name: string;
+        first_name: string;
+        last_name: string;
+        age?: number;
+        gender?: string;
+    };
     visit: {
         id: number;
         visit_number: string;
-        patient: {
-            id: number;
-            name: string;
-            first_name: string;
-            last_name: string;
-            age?: number;
-            gender?: string;
-        };
         assigned_clinic?: {
             name: string;
         };
     };
-    items: Array<{
+    orders: Array<{
         id: number;
-        service_id: number;
+        order_number: string;
+        status: string;
+        priority: string;
+        requested_at: string;
+    }>;
+    all_items: Array<{
+        id: number;
+        visit_order_id: number;
+        item_type: string;
+        item_id: number;
         qty: number;
         price: number;
-        service: {
+        labService: {
             id: number;
             name: string;
             code: string;
             price: number;
-            labServiceCategory?: {
+            sampleType?: {
                 name: string;
+                code: string;
+                default_container: string;
             };
+        };
+        lab_service?: {
+            id: number;
+            name: string;
+            code: string;
+            price: number;
+            sample_type?: {
+                name: string;
+                code: string;
+                default_container: string;
+            };
+        };
+        service?: {
+            id: number;
+            name: string;
+            code?: string;
+            price?: number;
+        };
+        item?: {
+            id: number;
+            name: string;
+            code?: string;
+            price?: number;
         };
         labSample?: {
             id: number;
             sample_number: string;
             status: string;
-            sample_type?: {
-                name: string;
-            };
         };
     }>;
+    total_items: number;
 }
 
 interface Props {
@@ -78,13 +108,6 @@ const statusColors = {
     processing: 'bg-blue-100 text-blue-800',
     completed: 'bg-green-100 text-green-800',
     cancelled: 'bg-red-100 text-red-800',
-};
-
-const statusIcons = {
-    requested: Clock,
-    processing: Play,
-    completed: CheckCircle,
-    cancelled: XCircle,
 };
 
 export default function LabQueue({ labQueue, filters }: Props) {
@@ -159,134 +182,191 @@ export default function LabQueue({ labQueue, filters }: Props) {
                     </CardContent>
                 </Card>
 
-                {/* Orders Table */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Lab Orders</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-12">#</TableHead>
-                                    <TableHead>Patient</TableHead>
-                                    <TableHead>Visit</TableHead>
-                                    <TableHead>Tests</TableHead>
-                                    <TableHead>Sample Status</TableHead>
-                                    <TableHead>Order Status</TableHead>
-                                    <TableHead>Created</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {labQueue.data?.map((order, index) => {
-                                    const StatusIcon = statusIcons[order.status as keyof typeof statusIcons];
-                                    return (
-                                        <TableRow key={order.id}>
-                                            <TableCell className="font-medium">{index + 1}</TableCell>
-                                            <TableCell>
-                                                <div className="space-y-1">
-                                                    <div className="font-medium">{getPatientName(order.visit.patient)}</div>
-                                                    <div className="text-sm text-gray-500">
-                                                        {order.visit.patient.age}y • {order.visit.patient.gender}
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="space-y-1">
-                                                    <div className="font-medium">{order.visit.visit_number}</div>
-                                                    <div className="text-sm text-gray-500">
-                                                        {order.visit.assigned_clinic?.name}
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="space-y-1">
-                                                    {order.items.map((item) => (
-                                                        <div key={item.id} className="text-sm">
-                                                            <div className="font-medium">{item.service.name}</div>
-                                                            <div className="text-gray-500">
-                                                                {item.service.code} • UGX{item.service.price}
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="space-y-1">
-                                                    {order.items.map((item) => (
-                                                        <Badge key={item.id} variant="outline" className="text-xs">
-                                                            {item.labSample?.sample_number || 'No Sample'}
-                                                        </Badge>
-                                                    ))}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge className={statusColors[order.status as keyof typeof statusColors]}>
-                                                    <StatusIcon className="h-3 w-3 mr-1" />
-                                                    {order.status}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="text-sm">
-                                                    {new Date(order.created_at).toLocaleDateString()}
-                                                    <div className="text-gray-500">
-                                                        {new Date(order.created_at).toLocaleTimeString()}
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex gap-1">
-                                                    <Link href={`/consultations/create?visit_id=${order.visit.id}`}>
-                                                        <Button size="sm" variant="outline">
-                                                            <Eye className="h-4 w-4" />
-                                                        </Button>
-                                                    </Link>
-                                                    {order.status === 'requested' && (
-                                                        <Button
-                                                            size="sm"
-                                                            onClick={() => updateOrderStatus(order.id, 'processing')}
-                                                        >
-                                                            <Play className="h-4 w-4" />
-                                                        </Button>
-                                                    )}
-                                                    {order.status === 'processing' && (
-                                                        <Button
-                                                            size="sm"
-                                                            onClick={() => updateOrderStatus(order.id, 'completed')}
-                                                        >
-                                                            <CheckCircle className="h-4 w-4" />
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })}
-                            </TableBody>
-                        </Table>
+                {/* Patient Cards */}
+                <div className="space-y-4">
+                    {labQueue.data.map((patientGroup) => {
+                        const patientName = getPatientName(patientGroup.patient);
+                        const primaryOrder = patientGroup.orders?.[0];
+                        const requestedAt = primaryOrder?.requested_at ? new Date(primaryOrder.requested_at) : null;
+                        const visitDate = requestedAt ? requestedAt.toLocaleDateString() : '—';
+                        const visitTime = requestedAt ? requestedAt.toLocaleTimeString() : '—';
+                        const patientAllergies = Array.isArray((patientGroup.patient as any).allergies)
+                            ? (patientGroup.patient as any).allergies
+                            : [];
+                        const resolveService = (item: any) =>
+                            item.labService || item.lab_service || item.service || item.item || null;
+                        const resolveSampleType = (service: any) =>
+                            service?.sampleType || service?.sample_type || null;
 
-                        {/* Pagination */}
-                        {labQueue.links?.length > 0 && (
-                            <div className="mt-4 flex justify-center">
-                                <div className="flex gap-1">
-                                    {labQueue.links.map((link, index) => (
-                                        <Link
-                                            key={index}
-                                            href={link.url || '#'}
-                                            className={`px-3 py-2 text-sm rounded ${
-                                                link.active
-                                                    ? 'bg-blue-500 text-white'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                            } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                        return (
+                            <Card key={patientGroup.patient.id}>
+                                <CardHeader className="space-y-3">
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                        <div>
+                                            <CardTitle className="text-lg">{patientName}</CardTitle>
+                                            <div className="text-sm text-muted-foreground">
+                                                Patient ID {patientGroup.patient.id} • Visit {patientGroup.visit.visit_number}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-5">
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Patient ID</Label>
+                                            <div className="font-medium">{patientGroup.patient.id}</div>
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Patient Name</Label>
+                                            <div className="font-medium">{patientName}</div>
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Age</Label>
+                                            <div className="font-medium">{patientGroup.patient.age ? `${patientGroup.patient.age} Year(s)` : '—'}</div>
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Gender</Label>
+                                            <div className="font-medium">{patientGroup.patient.gender || '—'}</div>
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Visit Date</Label>
+                                            <div className="font-medium">{visitDate}</div>
+                                            <div className="text-xs text-muted-foreground">{visitTime}</div>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    {patientAllergies.length > 0 ? (
+                                        <Alert variant="destructive" className="border-destructive/50">
+                                            <AlertTriangle className="h-4 w-4" />
+                                            <AlertTitle>Please be aware</AlertTitle>
+                                            <AlertDescription>
+                                                This client has reported allergies: {patientAllergies.map((allergy: any) => allergy.name).filter(Boolean).join(', ') || 'Reported allergies on file.'}
+                                            </AlertDescription>
+                                        </Alert>
+                                    ) : (
+                                        <div className="text-xs text-muted-foreground">No allergies recorded.</div>
+                                    )}
+
+                                    <div className="rounded-lg border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="w-12">S/N</TableHead>
+                                                    <TableHead>Service Name</TableHead>
+                                                    <TableHead>Instructions</TableHead>
+                                                    <TableHead>Order Date</TableHead>
+                                                    <TableHead>Status</TableHead>
+                                                    <TableHead>Priority</TableHead>
+                                                    <TableHead>Action</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {patientGroup.all_items.map((item, index) => {
+                                                    const service = resolveService(item);
+                                                    const sampleType = resolveSampleType(service);
+                                                    const itemOrder = patientGroup.orders.find((order) => order.id === item.visit_order_id) || primaryOrder;
+                                                    const itemRequestedAt = itemOrder?.requested_at ? new Date(itemOrder.requested_at) : null;
+                                                    const itemVisitDate = itemRequestedAt ? itemRequestedAt.toLocaleDateString() : visitDate;
+                                                    const itemVisitTime = itemRequestedAt ? itemRequestedAt.toLocaleTimeString() : visitTime;
+
+                                                    return (
+                                                        <TableRow key={item.id}>
+                                                            <TableCell>{index + 1}</TableCell>
+                                                            <TableCell>
+                                                                <div className="font-medium">
+                                                                    {service ? service.name : `No Lab Service (ID: ${item.item_id})`}
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground">
+                                                                    {service ? `${service.code || '—'} • UGX${service.price ?? '—'}` : `Item ID: ${item.item_id}`}
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <div className="text-sm text-muted-foreground">
+                                                                    {sampleType?.name ? `Sample: ${sampleType.name}` : 'No special instructions'}
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground">
+                                                                    Sample #{item.labSample?.sample_number || '—'}
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <div className="text-sm">{itemVisitDate}</div>
+                                                                <div className="text-xs text-muted-foreground">{itemVisitTime}</div>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {itemOrder && (
+                                                                    <Badge className={statusColors[itemOrder.status as keyof typeof statusColors]}>
+                                                                        {itemOrder.status === 'requested' && <Clock className="h-3 w-3 mr-1" />}
+                                                                        {itemOrder.status === 'processing' && <TestTube className="h-3 w-3 mr-1" />}
+                                                                        {itemOrder.status === 'completed' && <CheckCircle className="h-3 w-3 mr-1" />}
+                                                                        {itemOrder.status === 'cancelled' && <XCircle className="h-3 w-3 mr-1" />}
+                                                                        {itemOrder.status}
+                                                                    </Badge>
+                                                                )}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {itemOrder && (
+                                                                    <Badge variant={itemOrder.priority === 'urgent' ? 'destructive' : 'secondary'}>
+                                                                        {itemOrder.priority}
+                                                                    </Badge>
+                                                                )}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {itemOrder ? (
+                                                                    <SamplePickModal
+                                                                        order={{
+                                                                            ...itemOrder,
+                                                                            visit: {
+                                                                                ...patientGroup.visit,
+                                                                                patient: patientGroup.patient,
+                                                                            },
+                                                                            items: [item],
+                                                                        }}
+                                                                        item={item}
+                                                                        onSuccess={() => {
+                                                                            window.location.reload();
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    <span className="text-xs text-muted-foreground">No order</span>
+                                                                )}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    );
+                                                })}
+                                                {patientGroup.all_items.length === 0 && (
+                                                    <TableRow>
+                                                        <TableCell colSpan={7} className="text-center text-sm text-muted-foreground">
+                                                            No lab services found for this patient.
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        );
+                    })}
+                </div>
+
+                {/* Pagination */}
+                {labQueue.links?.length > 0 && (
+                    <div className="flex justify-center">
+                        <div className="flex gap-1">
+                            {labQueue.links.map((link, index) => (
+                                <Link
+                                    key={index}
+                                    href={link.url || '#'}
+                                    className={`px-3 py-2 text-sm rounded ${
+                                        link.active
+                                            ? 'bg-blue-500 text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </AppLayout>
     );
