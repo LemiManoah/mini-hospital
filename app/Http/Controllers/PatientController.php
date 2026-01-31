@@ -131,7 +131,7 @@ class PatientController extends Controller
             'visitTypes' => $visitTypes,
             'clinics' => $clinics,
             'doctors' => $doctors,
-            'allergies' => Allergy::active()->select('id', 'name', 'severity')->orderBy('name')->get(),
+            'availableAllergies' => Allergy::active()->select('id', 'name', 'severity', 'reaction_type', 'description')->orderBy('name')->get(),
             'kinRelationships' => EnumsKinRelationship::options(),
             'genders' => EnumsGender::options(),
             'maritalStatuses' => EnumsMaritalStatus::options(),

@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type MainNavItems, NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, DollarSign, Folder, LayoutGrid, LocateIcon, User2Icon, Shield, MedalIcon, Users, Settings, AlertTriangle, Calendar, BriefcaseMedicalIcon } from 'lucide-react';
+import { BookOpen, DollarSign, Folder, LayoutGrid, LocateIcon, User2Icon, Shield, MedalIcon, Users, Settings, AlertTriangle, Calendar, BriefcaseMedicalIcon, Package } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: MainNavItems[] = [
@@ -77,6 +77,16 @@ const mainNavItems: MainNavItems[] = [
         icon: AlertTriangle,
         subItems: [
             {
+                title: 'Lab Queue',
+                href: '/lab/queue',
+                icon: AlertTriangle,
+            },
+            {
+                title: 'Lab Results',
+                href: '/lab/results',
+                icon: AlertTriangle,
+            },
+            {
                 title: 'Lab Service Categories',
                 href: '/lab-service-categories',
                 icon: AlertTriangle,
@@ -99,16 +109,6 @@ const mainNavItems: MainNavItems[] = [
             {
                 title: 'Lab Samples',
                 href: '/lab-samples',
-                icon: AlertTriangle,
-            },
-            {
-                title: 'Lab Queue',
-                href: '/lab/queue',
-                icon: AlertTriangle,
-            },
-            {
-                title: 'Lab Results',
-                href: '/lab/results',
                 icon: AlertTriangle,
             },
         ],
@@ -146,6 +146,22 @@ const mainNavItems: MainNavItems[] = [
                 title: 'Calendar',
                 href: '/calendar',
                 icon: Calendar,
+            },
+        ],
+    },
+    {
+        title: 'Inventory',
+        icon: Package,
+        subItems: [
+            {
+                title: 'Medical Units',
+                href: '/medical-units',
+                icon: Package,
+            },
+            {
+                title: 'Suppliers',
+                href: '/suppliers',
+                icon: Package,
             },
         ],
     },

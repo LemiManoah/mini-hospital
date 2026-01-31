@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Database\Seeders\MedicalUnitSeeder;
+use Database\Seeders\SupplierSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,10 +27,17 @@ class DatabaseSeeder extends Seeder
         // Seed countries
         $this->call(CountrySeeder::class);
 
+        // Seed medical units
+        $this->call(MedicalUnitSeeder::class);
+
+        // Seed suppliers
+        $this->call(SupplierSeeder::class);
+
         // Seed core data
         $this->call([
             PatientCategorySeeder::class,
             PatientSeeder::class,
+            AllergySeeder::class,
             AppointmentCategorySeeder::class,
             AppointmentMethodSeeder::class,
             ClinicSeeder::class,

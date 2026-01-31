@@ -21,6 +21,7 @@ import { Patient } from '@/types/patient';
 import { Appointment } from '@/types/appointment';
 import { BreadcrumbItem } from '@/types';
 import StartVisitModal from '@/components/StartVisitModal';
+import AllergyModal from '@/components/AllergyModal';
 
 /* -------------------------------------------------------------------------- */
 /* Utils */
@@ -74,6 +75,7 @@ interface Props {
     visitTypes?: Array<{ id: number; name: string }>;
     clinics?: Array<{ id: number; name: string }>;
     doctors?: Array<{ id: number; name: string }>;
+    availableAllergies?: Array<{ id: number; name: string; description?: string; severity: string; reaction_type?: string }>;
 }
 
 export default function PatientShow({
@@ -82,6 +84,7 @@ export default function PatientShow({
     visitTypes = [],
     clinics = [],
     doctors = [],
+    availableAllergies = [],
 }: Props) {
     const fullName = `${patient.first_name} ${patient.last_name}`;
 
@@ -294,7 +297,16 @@ export default function PatientShow({
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <CardTitle>Allergies</CardTitle>
-                                <Button size="sm">+ Add Allergy</Button>
+                                <AllergyModal
+                                    patientId={patient.id}
+                                    patientAllergies={patient.allergies || []}
+                                    availableAllergies={availableAllergies}
+                                    trigger={
+                                        <Button size="sm">
+                                            Manage Allergies
+                                        </Button>
+                                    }
+                                />
                             </CardHeader>
 
                             <CardContent>
@@ -310,39 +322,48 @@ export default function PatientShow({
                                                         <p className="font-medium">
                                                             {allergy.name}
                                                         </p>
-                                                        <p className="text-xs text-gray-500">
-                                                            Severity:{' '}
-                                                            {
-                                                                allergy
-                                                                    .pivot
-                                                                    ?.severity
-                                                            }
-                                                        </p>
+                                                        {allergy.reaction_type && (
+                                                            <p className="text-xs text-gray-500">
+                                                                Reaction: {allergy.reaction_type}
+                                                            </p>
+                                                        )}
+                                                        {allergy.pivot?.notes && (
+                                                            <p className="text-xs text-gray-500 mt-1">
+                                                                Notes: {allergy.pivot.notes}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                     <Badge
-                                                        variant={
-                                                            allergy
-                                                                .pivot
-                                                                ?.severity ===
-                                                            'severe'
-                                                                ? 'destructive'
-                                                                : 'secondary'
+                                                        className={
+                                                            allergy.pivot?.severity === 'severe'
+                                                                ? 'bg-red-100 text-red-800 border-red-200'
+                                                                : allergy.pivot?.severity === 'moderate'
+                                                                ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                                                                : 'bg-green-100 text-green-800 border-green-200'
                                                         }
                                                     >
-                                                        {
-                                                            allergy
-                                                                .pivot
-                                                                ?.severity
-                                                        }
+                                                        {allergy.pivot?.severity || allergy.severity}
                                                     </Badge>
                                                 </div>
                                             )
                                         )}
                                     </div>
                                 ) : (
-                                    <p className="text-sm text-gray-500">
-                                        No allergies recorded.
-                                    </p>
+                                    <div className="text-center py-8">
+                                        <p className="text-sm text-gray-500 mb-4">
+                                            No allergies recorded.
+                                        </p>
+                                        <AllergyModal
+                                            patientId={patient.id}
+                                            patientAllergies={patient.allergies || []}
+                                            availableAllergies={availableAllergies}
+                                            trigger={
+                                                <Button variant="outline" size="sm">
+                                                    Add First Allergy
+                                                </Button>
+                                            }
+                                        />
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>

@@ -1,33 +1,35 @@
 <?php
 
-use App\Http\Controllers\AddressController;
-use App\Http\Controllers\AllergyController;
-use App\Http\Controllers\AppointmentCategoryController;
-use App\Http\Controllers\AppointmentController;
-use App\Http\Controllers\AppointmentMethodController;
-use App\Http\Controllers\ClinicController;
-use App\Http\Controllers\DoctorWorkingHourController;
-use App\Http\Controllers\LabReferenceRangeController;
-use App\Http\Controllers\LabResultOptionController;
-use App\Http\Controllers\LabResultController;
-use App\Http\Controllers\LabResultParameterController;
-use App\Http\Controllers\LabSampleController;
-use App\Http\Controllers\LabSampleTypeController;
-use App\Http\Controllers\LabServiceCategoryController;
-use App\Http\Controllers\LabServiceController;
-use App\Http\Controllers\PatientCategoryController;
-use App\Http\Controllers\PatientController;
-use App\Http\Controllers\PatientVisitController;
-use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\ServiceTypeController;
-use App\Http\Controllers\Settings\RoleController;
-use App\Http\Controllers\StaffProfileController;
-use App\Http\Controllers\VisitNoteController;
-use App\Http\Controllers\VisitOrderController;
-use App\Http\Controllers\VisitTriageController;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ClinicController;
+use App\Http\Controllers\AddressController;
+use App\Http\Controllers\AllergyController;
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\LabResultController;
+use App\Http\Controllers\LabSampleController;
+use App\Http\Controllers\VisitNoteController;
+use App\Http\Controllers\LabServiceController;
+use App\Http\Controllers\VisitOrderController;
+use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\MedicalUnitController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\ServiceTypeController;
+use App\Http\Controllers\VisitTriageController;
+use App\Http\Controllers\PatientVisitController;
+use App\Http\Controllers\StaffProfileController;
+use App\Http\Controllers\LabSampleTypeController;
+use App\Http\Controllers\Settings\RoleController;
+use App\Http\Controllers\LabResultOptionController;
+use App\Http\Controllers\PatientCategoryController;
+use App\Http\Controllers\AppointmentMethodController;
+use App\Http\Controllers\DoctorWorkingHourController;
+use App\Http\Controllers\LabReferenceRangeController;
+use App\Http\Controllers\LabResultParameterController;
+use App\Http\Controllers\LabServiceCategoryController;
+use App\Http\Controllers\AppointmentCategoryController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -63,6 +65,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('triage', VisitTriageController::class);
     Route::resource('consultations', VisitNoteController::class);
     Route::resource('patient-visits', PatientVisitController::class);
+    Route::resource('medical-units', MedicalUnitController::class);
+    Route::resource('suppliers', SupplierController::class);
 
     Route::post('/visits/quick-create', [PatientVisitController::class, 'quickStore'])
         ->name('visits.quick-store');
