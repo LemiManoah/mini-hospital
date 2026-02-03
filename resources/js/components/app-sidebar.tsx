@@ -15,6 +15,7 @@ import { type MainNavItems, NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BookOpen, DollarSign, Folder, LayoutGrid, LocateIcon, User2Icon, Shield, MedalIcon, Users, Settings, AlertTriangle, Calendar, BriefcaseMedicalIcon, Package } from 'lucide-react';
 import AppLogo from './app-logo';
+import { title } from 'process';
 
 const mainNavItems: MainNavItems[] = [
     {
@@ -154,7 +155,27 @@ const mainNavItems: MainNavItems[] = [
         icon: Package,
         subItems: [
             {
-                title: 'Medical Units',
+                title: 'Stores',
+                href: '/stores',
+                icon: Package,
+            },
+            {
+                title: 'Store Stock Report',
+                href: '/store-stocks-report',
+                icon: Package,
+            },
+            {
+                title: 'Item Categories',
+                href: '/inventory-item-categories',
+                icon: Package,
+            },
+            {
+                title: 'Inventory Items',
+                href: '/inventory-items',
+                icon: Package,
+            },
+            {
+                title: 'Measuring Units',
                 href: '/medical-units',
                 icon: Package,
             },

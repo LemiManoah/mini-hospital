@@ -16,6 +16,7 @@ use App\Http\Controllers\VisitOrderController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\MedicalUnitController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\InventoryItemController;
 use App\Http\Controllers\ServiceTypeController;
 use App\Http\Controllers\VisitTriageController;
 use App\Http\Controllers\PatientVisitController;
@@ -30,6 +31,9 @@ use App\Http\Controllers\LabReferenceRangeController;
 use App\Http\Controllers\LabResultParameterController;
 use App\Http\Controllers\LabServiceCategoryController;
 use App\Http\Controllers\AppointmentCategoryController;
+use App\Http\Controllers\InventoryItemCategoryController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\StoreStockReportController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -67,6 +71,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('patient-visits', PatientVisitController::class);
     Route::resource('medical-units', MedicalUnitController::class);
     Route::resource('suppliers', SupplierController::class);
+    Route::resource('inventory-items', InventoryItemController::class);
+    Route::resource('inventory-item-categories', InventoryItemCategoryController::class);
+    Route::resource('stores', StoreController::class);
+    Route::get('store-stocks-report', [StoreStockReportController::class, 'index'])->name('store-stocks.report');
 
     Route::post('/visits/quick-create', [PatientVisitController::class, 'quickStore'])
         ->name('visits.quick-store');

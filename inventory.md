@@ -14,6 +14,7 @@ Create a centralized inventory module that tracks stock and consumables (drugs, 
 ## Core Concepts
 - **Item Catalog**: Master list of items (drugs, consumables, general supplies).
 - **Stores**: Physical or logical stock locations (Main Store, Pharmacy Store, Lab Store, Ward Store).
+- **Reconciliation**: Periodic stock counts per store (cycle count and full count).
 - **Stock Lots/Batches**: Items tracked with batch number, expiry date, unit cost, vendor.
 - **Stock Movements**: Immutable ledger entries for all inventory changes.
 - **Requisitions**: Requests from consuming modules or departments.
@@ -22,23 +23,20 @@ Create a centralized inventory module that tracks stock and consumables (drugs, 
 - **GRN / Receipt**: Goods Receipt Note tied to LPO and stock entries.
 
 ## Item Catalog Requirements
-- **Item Types**: Drug, Consumable, General Supply.
+- **Classification**: Drug, Consumable, General Supply.
+- **Item Categories**: Anti microbial, Antifungal, Antiviral, Antipyretic, Antipyretic, Antipyretic, Antipyretic, Antipyretic, etc
 - **Fields**:
-  - Item Name, Code/SKU, Category, Unit of Measure, Pack Size
+  - Item Name, Generic name, Code/SKU, Classification, Item Category, Unit of Measure
   - Is Controlled (bool) for regulated drugs
   - Is Expirable (bool), Default Expiry Range
-  - Default Supplier (optional)
-  - Minimum Stock, Reorder Level, Max Stock
+  - Minimum Stock, Reorder Level
   - Cost Price (default), Selling Price (if billable)
-  - Linked Service(s) (optional mapping to billing/services)
-- **Barcodes**: Optional barcode support for receiving/issuing.
 
 ## Stores & Locations
 - Support multiple stores with independent stock balances.
 - Default stores: Main Store, Pharmacy Store, Lab Store, Ward Store.
 - Facilities may **disable Main Store**. When disabled, stores can receive/record stock directly without requisitioning from Main Store.
 - Each store has:
-  - Store Manager
   - Allowed item categories (optional restrictions)
   - Reorder thresholds (global + overrides)
 - Optional bin/location tracking for internal organization.

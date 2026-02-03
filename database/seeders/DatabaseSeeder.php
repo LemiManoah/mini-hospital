@@ -53,6 +53,9 @@ class DatabaseSeeder extends Seeder
             LabServiceSeeder::class,
             LabResultTypeSeeder::class,
             LabResultOptionsSeeder::class,
+            InventoryItemCategorySeeder::class,
+            InventoryItemSeeder::class,
+            StoreSeeder::class,
         ]);
 
         // Seed appointments (requires patients and doctor users)
